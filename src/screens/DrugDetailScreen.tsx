@@ -1,23 +1,24 @@
-import React, { useRef } from 'react';
+import React, { useRef } from "react";
 import {
   View,
   Text,
   ScrollView,
   ActivityIndicator,
   Pressable,
-} from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-import type BottomSheet from '@gorhom/bottom-sheet';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ArrowLeft } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import type BottomSheet from "@gorhom/bottom-sheet";
 
-import { useAppContext } from '@/context/AppContext';
-import DrugAnalysis from '@/components/DrugAnalysis';
-import ExplanationSheet from '@/components/ExplanationSheet';
-import NetworkGraph from '@/components/NetworkGraph';
+import { useAppContext } from "@/context/AppContext";
+import DrugAnalysis from "@/components/DrugAnalysis";
+import ExplanationSheet from "@/components/ExplanationSheet";
+import NetworkGraph from "@/components/NetworkGraph";
 
-const ACCENT = '#2563EB';
-const MUTED_FG = '#9CA3AF';
-const BORDER = '#E5E7EB';
+const ACCENT = "#2563EB";
+const MUTED_FG = "#9CA3AF";
+const BORDER = "#E5E7EB";
 const CARD_HEIGHT = 260;
 
 export default function DrugDetailScreen() {
@@ -32,27 +33,35 @@ export default function DrugDetailScreen() {
 
   const navigation = useNavigation();
   const sheetRef = useRef<BottomSheet>(null);
+  const insets = useSafeAreaInsets();
 
   if (!selectedDrug || !selectedDisease) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#FFFFFF",
+        }}
+      >
         <Text style={{ fontSize: 13, color: MUTED_FG }}>No drug selected</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <View
         style={{
-          paddingTop: 52,
+          paddingTop: insets.top + 8,
           paddingBottom: 12,
           paddingHorizontal: 16,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: "#FFFFFF",
           borderBottomWidth: 1,
           borderBottomColor: BORDER,
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           gap: 10,
         }}
       >
@@ -61,13 +70,16 @@ export default function DrugDetailScreen() {
           style={({ pressed }) => ({
             padding: 4,
             borderRadius: 6,
-            backgroundColor: pressed ? '#F3F4F6' : 'transparent',
+            backgroundColor: pressed ? "#F3F4F6" : "transparent",
           })}
         >
           <ArrowLeft size={20} color="#374151" />
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827' }} numberOfLines={1}>
+          <Text
+            style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}
+            numberOfLines={1}
+          >
             {selectedDrug.drug_name}
           </Text>
           <Text style={{ fontSize: 11, color: MUTED_FG }} numberOfLines={1}>
@@ -76,13 +88,19 @@ export default function DrugDetailScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 12, gap: 12 }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={{ padding: 12, gap: 12 }}
+        showsVerticalScrollIndicator={false}
+      >
         <SectionCard title="Drug-Disease Network">
           {loading.network ? (
             <LoadingPlaceholder label="Loading network…" />
           ) : networkData ? (
             <View style={{ height: CARD_HEIGHT }}>
-              <NetworkGraph networkData={networkData} loading={loading.network} />
+              <NetworkGraph
+                networkData={networkData}
+                loading={loading.network}
+              />
             </View>
           ) : (
             <EmptyPlaceholder label="No network data available" />
@@ -93,12 +111,19 @@ export default function DrugDetailScreen() {
           {loading.structure ? (
             <LoadingPlaceholder label="Loading structure…" />
           ) : structureData ? (
-            <View style={{ height: CARD_HEIGHT, alignItems: 'center', justifyContent: 'center' }}>
+            <View
+              style={{
+                height: CARD_HEIGHT,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <Text style={{ fontSize: 12, color: MUTED_FG }}>
                 3D molecule viewer — coming soon
               </Text>
               <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 4 }}>
-                {structureData.source ?? '3d'} · CID {structureData.pubchem_cid ?? 'N/A'}
+                {structureData.source ?? "3d"} · CID{" "}
+                {structureData.pubchem_cid ?? "N/A"}
               </Text>
             </View>
           ) : (
@@ -116,23 +141,40 @@ export default function DrugDetailScreen() {
         </SectionCard>
       </ScrollView>
 
-      <ExplanationSheet ref={sheetRef} drug={selectedDrug} disease={selectedDisease} />
+      <ExplanationSheet
+        ref={sheetRef}
+        drug={selectedDrug}
+        disease={selectedDisease}
+      />
     </View>
   );
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <View
       style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: "#FFFFFF",
         borderRadius: 10,
         borderWidth: 1,
         borderColor: BORDER,
         padding: 12,
       }}
     >
-      <Text style={{ fontSize: 11, fontWeight: '500', color: MUTED_FG, marginBottom: 8 }}>
+      <Text
+        style={{
+          fontSize: 11,
+          fontWeight: "500",
+          color: MUTED_FG,
+          marginBottom: 8,
+        }}
+      >
         {title}
       </Text>
       {children}
@@ -142,16 +184,26 @@ function SectionCard({ title, children }: { title: string; children: React.React
 
 function LoadingPlaceholder({ label }: { label: string }) {
   return (
-    <View style={{ height: CARD_HEIGHT, alignItems: 'center', justifyContent: 'center' }}>
+    <View
+      style={{
+        height: CARD_HEIGHT,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <ActivityIndicator size="large" color={ACCENT} />
-      <Text style={{ fontSize: 12, color: MUTED_FG, marginTop: 10 }}>{label}</Text>
+      <Text style={{ fontSize: 12, color: MUTED_FG, marginTop: 10 }}>
+        {label}
+      </Text>
     </View>
   );
 }
 
 function EmptyPlaceholder({ label }: { label: string }) {
   return (
-    <View style={{ height: 100, alignItems: 'center', justifyContent: 'center' }}>
+    <View
+      style={{ height: 100, alignItems: "center", justifyContent: "center" }}
+    >
       <Text style={{ fontSize: 12, color: MUTED_FG }}>{label}</Text>
     </View>
   );

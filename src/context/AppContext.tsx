@@ -4,14 +4,14 @@ import React, {
   useContext,
   useState,
   type ReactNode,
-} from 'react';
+} from "react";
 
 import {
   predictCandidates,
   getDrugDetails,
   getDrugDiseaseNetwork,
   getDrugStructure,
-} from '@/services/index';
+} from "@/services/index";
 
 import type {
   Disease,
@@ -20,7 +20,7 @@ import type {
   LoadingState,
   NetworkData,
   StructureData,
-} from '@/types/index';
+} from "@/types/index";
 
 interface AppContextType {
   selectedDisease: Disease | null;
@@ -45,7 +45,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [candidates, setCandidates] = useState<DrugCandidate[]>([]);
   const [selectedDrug, setSelectedDrug] = useState<DrugCandidate | null>(null);
   const [networkData, setNetworkData] = useState<NetworkData | null>(null);
-  const [structureData, setStructureData] = useState<StructureData | null>(null);
+  const [structureData, setStructureData] = useState<StructureData | null>(
+    null,
+  );
   const [drugDetails, setDrugDetails] = useState<DrugDetails | null>(null);
   const [loading, setLoading] = useState<LoadingState>({
     predict: false,
@@ -64,18 +66,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStructureData(null);
     setDrugDetails(null);
     setError(null);
-    setLoading(prev => ({ ...prev, predict: true }));
+    setLoading((prev) => ({ ...prev, predict: true }));
 
     try {
       const result = await predictCandidates(disease.disease_id, 5);
       setCandidates(result.candidates ?? []);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      const detail =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      setError('Failed to predict drug candidates. ' + (detail ?? msg));
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      const detail = (err as { response?: { data?: { detail?: string } } })
+        ?.response?.data?.detail;
+      setError("Failed to predict drug candidates. " + (detail ?? msg));
     } finally {
-      setLoading(prev => ({ ...prev, predict: false }));
+      setLoading((prev) => ({ ...prev, predict: false }));
     }
   }, []);
 
@@ -87,7 +89,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setStructureData(null);
       setNetworkData(null);
       setDrugDetails(null);
-      setLoading(prev => ({
+      setLoading((prev) => ({
         ...prev,
         structure: true,
         network: true,
@@ -99,22 +101,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const data = await getDrugStructure(drug.drug_id);
           setStructureData(data);
         } catch (err) {
-          console.error('Structure fetch failed:', err);
+          console.error("Structure fetch failed:", err);
           setStructureData(null);
         } finally {
-          setLoading(prev => ({ ...prev, structure: false }));
+          setLoading((prev) => ({ ...prev, structure: false }));
         }
       };
 
       const fetchNetwork = async () => {
         try {
-          const data = await getDrugDiseaseNetwork(drug.drug_id, selectedDisease.disease_id);
+          const data = await getDrugDiseaseNetwork(
+            drug.drug_id,
+            selectedDisease.disease_id,
+          );
           setNetworkData(data);
         } catch (err) {
-          console.error('Network fetch failed:', err);
+          console.error("Network fetch failed:", err);
           setNetworkData(null);
         } finally {
-          setLoading(prev => ({ ...prev, network: false }));
+          setLoading((prev) => ({ ...prev, network: false }));
         }
       };
 
@@ -123,10 +128,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const data = await getDrugDetails(drug.drug_id);
           setDrugDetails(data);
         } catch (err) {
-          console.error('Details fetch failed:', err);
+          console.error("Details fetch failed:", err);
           setDrugDetails(null);
         } finally {
-          setLoading(prev => ({ ...prev, details: false }));
+          setLoading((prev) => ({ ...prev, details: false }));
         }
       };
 
@@ -157,7 +162,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 export function useAppContext(): AppContextType {
   const ctx = useContext(AppContext);
   if (!ctx) {
-    throw new Error('useAppContext must be used inside <AppProvider>');
+    throw new Error("useAppContext must be used inside <AppProvider>");
   }
   return ctx;
 }

@@ -15,13 +15,12 @@ import { useAppContext } from "@/context/AppContext";
 import DrugAnalysis from "@/components/DrugAnalysis";
 import ExplanationSheet from "@/components/ExplanationSheet";
 import NetworkGraph from "@/components/NetworkGraph";
+import { useThemeColors, type AppColors } from "@/theme/colors";
 
-const ACCENT = "#2563EB";
-const MUTED_FG = "#9CA3AF";
-const BORDER = "#E5E7EB";
 const CARD_HEIGHT = 260;
 
 export default function DrugDetailScreen() {
+  const C = useThemeColors();
   const {
     selectedDrug,
     selectedDisease,
@@ -42,24 +41,24 @@ export default function DrugDetailScreen() {
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#FFFFFF",
+          backgroundColor: C.background,
         }}
       >
-        <Text style={{ fontSize: 13, color: MUTED_FG }}>No drug selected</Text>
+        <Text style={{ fontSize: 13, color: C.textMuted }}>No drug selected</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+    <View style={{ flex: 1, backgroundColor: C.backgroundSubtle }}>
       <View
         style={{
           paddingTop: insets.top + 8,
           paddingBottom: 12,
           paddingHorizontal: 16,
-          backgroundColor: "#FFFFFF",
+          backgroundColor: C.card,
           borderBottomWidth: 1,
-          borderBottomColor: BORDER,
+          borderBottomColor: C.border,
           flexDirection: "row",
           alignItems: "center",
           gap: 10,
@@ -70,19 +69,19 @@ export default function DrugDetailScreen() {
           style={({ pressed }) => ({
             padding: 4,
             borderRadius: 6,
-            backgroundColor: pressed ? "#F3F4F6" : "transparent",
+            backgroundColor: pressed ? C.cardPressed : "transparent",
           })}
         >
-          <ArrowLeft size={20} color="#374151" />
+          <ArrowLeft size={20} color={C.textSecondary} />
         </Pressable>
         <View style={{ flex: 1 }}>
           <Text
-            style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}
+            style={{ fontSize: 16, fontWeight: "700", color: C.textPrimary }}
             numberOfLines={1}
           >
             {selectedDrug.drug_name}
           </Text>
-          <Text style={{ fontSize: 11, color: MUTED_FG }} numberOfLines={1}>
+          <Text style={{ fontSize: 11, color: C.textMuted }} numberOfLines={1}>
             {selectedDisease.disease_name}
           </Text>
         </View>
@@ -92,9 +91,9 @@ export default function DrugDetailScreen() {
         contentContainerStyle={{ padding: 12, gap: 12 }}
         showsVerticalScrollIndicator={false}
       >
-        <SectionCard title="Drug-Disease Network">
+        <SectionCard title="Drug-Disease Network" colors={C}>
           {loading.network ? (
-            <LoadingPlaceholder label="Loading network…" />
+            <LoadingPlaceholder label="Loading network…" colors={C} />
           ) : networkData ? (
             <View style={{ height: CARD_HEIGHT }}>
               <NetworkGraph
@@ -103,13 +102,13 @@ export default function DrugDetailScreen() {
               />
             </View>
           ) : (
-            <EmptyPlaceholder label="No network data available" />
+            <EmptyPlaceholder label="No network data available" colors={C} />
           )}
         </SectionCard>
 
-        <SectionCard title="Molecular Structure">
+        <SectionCard title="Molecular Structure" colors={C}>
           {loading.structure ? (
-            <LoadingPlaceholder label="Loading structure…" />
+            <LoadingPlaceholder label="Loading structure…" colors={C} />
           ) : structureData ? (
             <View
               style={{
@@ -118,20 +117,20 @@ export default function DrugDetailScreen() {
                 justifyContent: "center",
               }}
             >
-              <Text style={{ fontSize: 12, color: MUTED_FG }}>
+              <Text style={{ fontSize: 12, color: C.textMuted }}>
                 3D molecule viewer — coming soon
               </Text>
-              <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 4 }}>
+              <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>
                 {structureData.source ?? "3d"} · CID{" "}
                 {structureData.pubchem_cid ?? "N/A"}
               </Text>
             </View>
           ) : (
-            <EmptyPlaceholder label="No structure data available" />
+            <EmptyPlaceholder label="No structure data available" colors={C} />
           )}
         </SectionCard>
 
-        <SectionCard title="Analysis">
+        <SectionCard title="Analysis" colors={C}>
           <DrugAnalysis
             drug={selectedDrug}
             disease={selectedDisease}
@@ -153,17 +152,19 @@ export default function DrugDetailScreen() {
 function SectionCard({
   title,
   children,
+  colors,
 }: {
   title: string;
   children: React.ReactNode;
+  colors: AppColors;
 }) {
   return (
     <View
       style={{
-        backgroundColor: "#FFFFFF",
+        backgroundColor: colors.card,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: BORDER,
+        borderColor: colors.border,
         padding: 12,
       }}
     >
@@ -171,7 +172,7 @@ function SectionCard({
         style={{
           fontSize: 11,
           fontWeight: "500",
-          color: MUTED_FG,
+          color: colors.textMuted,
           marginBottom: 8,
         }}
       >
@@ -182,7 +183,7 @@ function SectionCard({
   );
 }
 
-function LoadingPlaceholder({ label }: { label: string }) {
+function LoadingPlaceholder({ label, colors }: { label: string; colors: AppColors }) {
   return (
     <View
       style={{
@@ -191,20 +192,20 @@ function LoadingPlaceholder({ label }: { label: string }) {
         justifyContent: "center",
       }}
     >
-      <ActivityIndicator size="large" color={ACCENT} />
-      <Text style={{ fontSize: 12, color: MUTED_FG, marginTop: 10 }}>
+      <ActivityIndicator size="large" color={colors.accent} />
+      <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 10 }}>
         {label}
       </Text>
     </View>
   );
 }
 
-function EmptyPlaceholder({ label }: { label: string }) {
+function EmptyPlaceholder({ label, colors }: { label: string; colors: AppColors }) {
   return (
     <View
       style={{ height: 100, alignItems: "center", justifyContent: "center" }}
     >
-      <Text style={{ fontSize: 12, color: MUTED_FG }}>{label}</Text>
+      <Text style={{ fontSize: 12, color: colors.textMuted }}>{label}</Text>
     </View>
   );
 }

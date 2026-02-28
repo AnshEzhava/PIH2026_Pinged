@@ -4,6 +4,7 @@ import { Search, FlaskConical } from 'lucide-react-native';
 
 import SearchStack from './SearchStack';
 import ResultsStack from './ResultsStack';
+import { useThemeColors } from '@/theme/colors';
 
 export type TabParamList = {
   SearchTab: undefined;
@@ -12,20 +13,19 @@ export type TabParamList = {
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const ACCENT = '#2563EB';
-const MUTED_FG = '#9CA3AF';
-
 export default function TabNavigator() {
+  const C = useThemeColors();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: ACCENT,
-        tabBarInactiveTintColor: MUTED_FG,
+        tabBarActiveTintColor: C.accent,
+        tabBarInactiveTintColor: C.textMuted,
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
-          backgroundColor: '#FFFFFF',
+          borderTopColor: C.border,
+          backgroundColor: C.card,
         },
       }}
     >

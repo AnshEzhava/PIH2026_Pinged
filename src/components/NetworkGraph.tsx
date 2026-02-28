@@ -22,6 +22,7 @@ import Animated, {
 
 import { NetworkData, NetworkNodeType } from '@/types/index';
 import { useForceSimulation } from '@/hooks/useForceSimulation';
+import { useThemeColors } from '@/theme/colors';
 
 const NODE_COLORS: Record<NetworkNodeType | string, string> = {
   drug: '#6366F1',
@@ -45,6 +46,7 @@ interface Props {
 }
 
 export default function NetworkGraph({ networkData, loading = false }: Props) {
+  const C = useThemeColors();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
@@ -105,7 +107,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={[styles.center, { backgroundColor: C.card }]}>
         <ActivityIndicator color="#6366F1" />
       </View>
     );
@@ -113,8 +115,8 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
 
   if (!networkData?.nodes?.length) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.emptyText}>Select a drug to view network</Text>
+      <View style={[styles.center, { backgroundColor: C.card }]}>
+        <Text style={[styles.emptyText, { color: C.textMuted }]}>Select a drug to view network</Text>
       </View>
     );
   }
@@ -143,7 +145,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
                       y1={lp.y1}
                       x2={lp.x2}
                       y2={lp.y2}
-                      stroke="#E5E5E5"
+                      stroke={C.networkEdge}
                       strokeWidth={1.2}
                     />
                   ))}
@@ -159,7 +161,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
                         y={lp.my}
                         textAnchor="middle"
                         fontSize={8}
-                        fill="#A3A3A3"
+                        fill={C.networkEdgeLabel}
                       >
                         {lp.label}
                       </SvgText>
@@ -184,7 +186,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
                         cy={pos.y}
                         r={r}
                         fill={color}
-                        stroke="#FFFFFF"
+                        stroke={C.networkNodeStroke}
                         strokeWidth={selectedNode === node.id ? 2.5 : 1.5}
                         opacity={selectedNode && selectedNode !== node.id ? 0.5 : 1}
                       />
@@ -194,7 +196,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
                         textAnchor="middle"
                         fontSize={9}
                         fontWeight="500"
-                        fill="#404040"
+                        fill={C.networkNodeLabel}
                       >
                         {node.label ?? node.id}
                       </SvgText>
@@ -214,7 +216,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
                     { backgroundColor: NODE_COLORS[type] },
                   ]}
                 />
-                <Text style={styles.legendLabel}>
+                <Text style={[styles.legendLabel, { color: C.networkLegendLabel }]}>
                   {type === 'gene' ? 'Target' : type.charAt(0).toUpperCase() + type.slice(1)}
                 </Text>
               </View>
@@ -222,11 +224,11 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
           </View>
 
           {selectedNodeData && (
-            <View style={styles.tooltip}>
-              <Text style={styles.tooltipTitle}>
+            <View style={[styles.tooltip, { backgroundColor: C.card, borderColor: C.border }]}>
+              <Text style={[styles.tooltipTitle, { color: C.textPrimary }]}>
                 {selectedNodeData.label ?? selectedNodeData.id}
               </Text>
-              <Text style={styles.tooltipType}>{selectedNodeData.type}</Text>
+              <Text style={[styles.tooltipType, { color: C.textMuted }]}>{selectedNodeData.type}</Text>
             </View>
           )}
         </GestureHandlerRootView>
@@ -240,11 +242,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
   emptyText: {
     fontSize: 13,
-    color: '#9CA3AF',
   },
   legend: {
     position: 'absolute',
@@ -265,15 +265,12 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 10,
-    color: '#6B7280',
   },
   tooltip: {
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -286,11 +283,9 @@ const styles = StyleSheet.create({
   tooltipTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#111827',
   },
   tooltipType: {
     fontSize: 11,
-    color: '#9CA3AF',
     textTransform: 'capitalize',
   },
 });

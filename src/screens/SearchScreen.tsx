@@ -19,13 +19,10 @@ import { getPopularDiseases, searchDiseases } from "@/services/index";
 import { useAppContext } from "@/context/AppContext";
 import type { Disease } from "@/types/index";
 import type { TabParamList } from "@/navigation/TabNavigator";
-
-const ACCENT = "#2563EB";
-const MUTED_FG = "#9CA3AF";
-const BORDER = "#E5E7EB";
-const MUTED_BG = "#F9FAFB";
+import { useThemeColors } from "@/theme/colors";
 
 export default function SearchScreen() {
+  const C = useThemeColors();
   const { selectedDisease, selectDisease, loading, error, clearError } =
     useAppContext();
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
@@ -93,9 +90,9 @@ export default function SearchScreen() {
               borderRadius: 6,
               marginBottom: 2,
               backgroundColor: pressed
-                ? "#F3F4F6"
+                ? C.cardPressed
                 : isSelected
-                  ? "rgba(37,99,235,0.05)"
+                  ? C.accentSubtle
                   : "transparent",
             })}
           >
@@ -111,7 +108,7 @@ export default function SearchScreen() {
                   style={{
                     fontSize: 12,
                     fontWeight: "500",
-                    color: isSelected ? ACCENT : "#374151",
+                    color: isSelected ? C.accent : C.textSecondary,
                   }}
                 >
                   {item.disease_name}
@@ -119,7 +116,7 @@ export default function SearchScreen() {
                 <Text
                   style={{
                     fontSize: 9,
-                    color: MUTED_FG,
+                    color: C.textMuted,
                     marginTop: 2,
                     fontFamily: Platform.OS === "ios" ? "Courier" : "monospace",
                     opacity: 0.6,
@@ -135,7 +132,7 @@ export default function SearchScreen() {
                     width: 6,
                     height: 6,
                     borderRadius: 3,
-                    backgroundColor: ACCENT,
+                    backgroundColor: C.accent,
                     marginLeft: 8,
                     marginTop: 6,
                   }}
@@ -146,12 +143,12 @@ export default function SearchScreen() {
         </Animated.View>
       );
     },
-    [selectedDisease, handleSelect],
+    [selectedDisease, handleSelect, C],
   );
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+      style={{ flex: 1, backgroundColor: C.background }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View
@@ -160,16 +157,16 @@ export default function SearchScreen() {
           paddingTop: insets.top + 8,
           paddingBottom: 12,
           borderBottomWidth: 1,
-          borderBottomColor: BORDER,
+          borderBottomColor: C.border,
         }}
       >
-        <Text style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}>
+        <Text style={{ fontSize: 16, fontWeight: "700", color: C.textPrimary }}>
           Disease Context
         </Text>
         <Text
           style={{
             fontSize: 10,
-            color: MUTED_FG,
+            color: C.textMuted,
             marginTop: 2,
             lineHeight: 16,
           }}
@@ -182,8 +179,8 @@ export default function SearchScreen() {
         <Pressable
           onPress={clearError}
           style={{
-            backgroundColor: "#FEF2F2",
-            borderColor: "#FECACA",
+            backgroundColor: C.errorBg,
+            borderColor: C.errorBorder,
             borderWidth: 1,
             borderRadius: 8,
             paddingHorizontal: 16,
@@ -192,8 +189,8 @@ export default function SearchScreen() {
             marginTop: 8,
           }}
         >
-          <Text style={{ fontSize: 12, color: "#B91C1C" }}>{error}</Text>
-          <Text style={{ fontSize: 10, color: "#EF4444", marginTop: 2 }}>
+          <Text style={{ fontSize: 12, color: C.errorText }}>{error}</Text>
+          <Text style={{ fontSize: 10, color: C.errorSub, marginTop: 2 }}>
             Tap to dismiss
           </Text>
         </Pressable>
@@ -209,8 +206,8 @@ export default function SearchScreen() {
             gap: 6,
           }}
         >
-          <ActivityIndicator size="small" color={ACCENT} />
-          <Text style={{ fontSize: 11, color: MUTED_FG, fontWeight: "500" }}>
+          <ActivityIndicator size="small" color={C.accent} />
+          <Text style={{ fontSize: 11, color: C.textMuted, fontWeight: "500" }}>
             Scoring candidates…
           </Text>
         </View>
@@ -221,24 +218,24 @@ export default function SearchScreen() {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            backgroundColor: MUTED_BG,
+            backgroundColor: C.backgroundSubtle,
             borderWidth: 1,
-            borderColor: BORDER,
+            borderColor: C.border,
             borderRadius: 6,
             paddingHorizontal: 10,
           }}
         >
-          <Search size={14} color={MUTED_FG} style={{ marginRight: 6 }} />
+          <Search size={14} color={C.textMuted} style={{ marginRight: 6 }} />
           <TextInput
             style={{
               flex: 1,
               fontSize: 12,
               paddingVertical: 8,
-              color: "#111827",
+              color: C.textPrimary,
               fontFamily: "System",
             }}
             placeholder="Search diseases..."
-            placeholderTextColor={MUTED_FG}
+            placeholderTextColor={C.textMuted}
             value={searchQuery}
             onChangeText={handleSearch}
             autoCapitalize="none"
@@ -248,7 +245,7 @@ export default function SearchScreen() {
           {searching && (
             <ActivityIndicator
               size="small"
-              color={ACCENT}
+              color={C.accent}
               style={{ marginLeft: 6 }}
             />
           )}
@@ -267,7 +264,7 @@ export default function SearchScreen() {
                 textAlign: "center",
                 paddingVertical: 24,
                 fontSize: 12,
-                color: MUTED_FG,
+                color: C.textMuted,
               }}
             >
               No diseases found
@@ -280,7 +277,7 @@ export default function SearchScreen() {
       <View
         style={{
           borderTopWidth: 1,
-          borderTopColor: BORDER,
+          borderTopColor: C.border,
           paddingHorizontal: 12,
           paddingVertical: 8,
         }}
@@ -294,38 +291,38 @@ export default function SearchScreen() {
           }}
         >
           <View>
-            <Text style={{ fontSize: 12, fontWeight: "600", color: "#111827" }}>
+            <Text style={{ fontSize: 12, fontWeight: "600", color: C.textPrimary }}>
               Advanced Input
             </Text>
-            <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 1 }}>
+            <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 1 }}>
               Molecular/genetic data
             </Text>
           </View>
           {advancedExpanded ? (
-            <ChevronUp size={14} color={MUTED_FG} />
+            <ChevronUp size={14} color={C.textMuted} />
           ) : (
-            <ChevronDown size={14} color={MUTED_FG} />
+            <ChevronDown size={14} color={C.textMuted} />
           )}
         </Pressable>
 
         {advancedExpanded && (
           <View style={{ marginTop: 8 }}>
-            <Text style={{ fontSize: 10, color: MUTED_FG, marginBottom: 4 }}>
+            <Text style={{ fontSize: 10, color: C.textMuted, marginBottom: 4 }}>
               Disease ID (EFO/MONDO)
             </Text>
             <TextInput
               style={{
                 borderWidth: 1,
-                borderColor: BORDER,
+                borderColor: C.border,
                 borderRadius: 6,
                 paddingHorizontal: 8,
                 paddingVertical: 6,
                 fontSize: 12,
-                color: "#111827",
-                backgroundColor: "#FFFFFF",
+                color: C.textPrimary,
+                backgroundColor: C.card,
               }}
               placeholder="e.g. MONDO_0005180"
-              placeholderTextColor={MUTED_FG}
+              placeholderTextColor={C.textMuted}
               value={directId}
               onChangeText={setDirectId}
               onSubmitEditing={handleDirectIdSubmit}

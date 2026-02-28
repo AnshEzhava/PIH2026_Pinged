@@ -23,17 +23,15 @@ import { Sparkles, Send, X } from "lucide-react-native";
 
 import { chatWithGemini } from "@/services/index";
 import { useAppContext } from "@/context/AppContext";
+import { useThemeColors, type AppColors } from "@/theme/colors";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-const ACCENT = "#2563EB";
-const MUTED_FG = "#9CA3AF";
-const BORDER = "#E5E7EB";
-
 export default function ChatbotScreen() {
+  const C = useThemeColors();
   const { selectedDrug, selectedDisease, showChatbot, setShowChatbot } =
     useAppContext();
   const insets = useSafeAreaInsets();
@@ -84,7 +82,6 @@ export default function ChatbotScreen() {
           selectedDrug.mechanism ?? "Unknown",
           text,
         );
-        // API returns `response` field; handle potential `answer` field too
         const answer =
           (resp as unknown as { answer?: string }).answer ??
           resp.response ??
@@ -110,8 +107,8 @@ export default function ChatbotScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: Message }) => <MessageBubble message={item} />,
-    [],
+    ({ item }: { item: Message }) => <MessageBubble message={item} colors={C} />,
+    [C],
   );
 
   if (!selectedDrug || !selectedDisease) return null;
@@ -124,7 +121,7 @@ export default function ChatbotScreen() {
       onRequestClose={() => setShowChatbot(false)}
     >
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+        style={{ flex: 1, backgroundColor: C.background }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View
@@ -133,22 +130,22 @@ export default function ChatbotScreen() {
             paddingBottom: 12,
             paddingHorizontal: 16,
             borderBottomWidth: 1,
-            borderBottomColor: BORDER,
+            borderBottomColor: C.border,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: "rgba(37,99,235,0.04)",
+            backgroundColor: C.chatHeaderBg,
           }}
         >
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Sparkles size={18} color={ACCENT} />
+            <Sparkles size={18} color={C.accent} />
             <View>
               <Text
-                style={{ fontSize: 15, fontWeight: "600", color: "#111827" }}
+                style={{ fontSize: 15, fontWeight: "600", color: C.textPrimary }}
               >
                 AI Assistant
               </Text>
-              <Text style={{ fontSize: 11, color: MUTED_FG }}>
+              <Text style={{ fontSize: 11, color: C.textMuted }}>
                 Ask me about {selectedDrug.drug_name} and{" "}
                 {selectedDisease.disease_name}
               </Text>
@@ -159,10 +156,10 @@ export default function ChatbotScreen() {
             style={({ pressed }) => ({
               padding: 6,
               borderRadius: 6,
-              backgroundColor: pressed ? "#F3F4F6" : "transparent",
+              backgroundColor: pressed ? C.cardPressed : "transparent",
             })}
           >
-            <X size={18} color={MUTED_FG} />
+            <X size={18} color={C.textMuted} />
           </Pressable>
         </View>
 
@@ -174,7 +171,7 @@ export default function ChatbotScreen() {
           inverted
           contentContainerStyle={{ padding: 16, gap: 12 }}
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={loading ? <TypingIndicator /> : null}
+          ListHeaderComponent={loading ? <TypingIndicator colors={C} /> : null}
         />
 
         {messages.length <= 1 && (
@@ -183,15 +180,15 @@ export default function ChatbotScreen() {
               paddingHorizontal: 12,
               paddingVertical: 8,
               borderTopWidth: 1,
-              borderTopColor: BORDER,
-              backgroundColor: "rgba(249,250,251,0.5)",
+              borderTopColor: C.border,
+              backgroundColor: C.suggestionsBg,
             }}
           >
             <Text
               style={{
                 fontSize: 11,
                 fontWeight: "500",
-                color: MUTED_FG,
+                color: C.textMuted,
                 marginBottom: 6,
               }}
             >
@@ -209,14 +206,14 @@ export default function ChatbotScreen() {
                       paddingVertical: 5,
                       borderRadius: 20,
                       borderWidth: 1,
-                      borderColor: pressed ? ACCENT : BORDER,
+                      borderColor: pressed ? C.accent : C.border,
                       backgroundColor: pressed
-                        ? "rgba(37,99,235,0.05)"
-                        : "#FFFFFF",
+                        ? C.accentSubtle
+                        : C.selectedBg,
                       opacity: loading ? 0.5 : 1,
                     })}
                   >
-                    <Text style={{ fontSize: 11, color: "#374151" }}>{q}</Text>
+                    <Text style={{ fontSize: 11, color: C.textSecondary }}>{q}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -230,7 +227,7 @@ export default function ChatbotScreen() {
             paddingTop: 10,
             paddingBottom: Platform.OS === "ios" ? 28 : 12,
             borderTopWidth: 1,
-            borderTopColor: BORDER,
+            borderTopColor: C.border,
           }}
         >
           <View
@@ -240,17 +237,18 @@ export default function ChatbotScreen() {
               style={{
                 flex: 1,
                 borderWidth: 1,
-                borderColor: BORDER,
+                borderColor: C.border,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 paddingVertical: 8,
                 fontSize: 13,
-                color: "#111827",
+                color: C.textPrimary,
+                backgroundColor: C.card,
                 maxHeight: 80,
                 minHeight: 40,
               }}
               placeholder="Ask a question about the drug or disease…"
-              placeholderTextColor={MUTED_FG}
+              placeholderTextColor={C.textMuted}
               value={input}
               onChangeText={setInput}
               multiline
@@ -268,21 +266,21 @@ export default function ChatbotScreen() {
                 borderRadius: 10,
                 backgroundColor:
                   !input.trim() || loading
-                    ? "#E5E7EB"
+                    ? C.accentDisabled
                     : pressed
-                      ? "rgba(37,99,235,0.85)"
-                      : ACCENT,
+                      ? C.accentPressed
+                      : C.accent,
                 alignItems: "center",
                 justifyContent: "center",
               })}
             >
               <Send
                 size={16}
-                color={!input.trim() || loading ? MUTED_FG : "#FFFFFF"}
+                color={!input.trim() || loading ? C.textMuted : "#FFFFFF"}
               />
             </Pressable>
           </View>
-          <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 6 }}>
+          <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 6 }}>
             Focused on {selectedDrug.drug_name} and{" "}
             {selectedDisease.disease_name}
           </Text>
@@ -292,7 +290,7 @@ export default function ChatbotScreen() {
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({ message, colors }: { message: Message; colors: AppColors }) {
   const isUser = message.role === "user";
   return (
     <View
@@ -307,14 +305,14 @@ function MessageBubble({ message }: { message: Message }) {
           borderRadius: 12,
           paddingHorizontal: 14,
           paddingVertical: 10,
-          backgroundColor: isUser ? ACCENT : "#F3F4F6",
+          backgroundColor: isUser ? colors.accent : colors.backgroundMuted,
         }}
       >
         <Text
           style={{
             fontSize: 13,
             lineHeight: 20,
-            color: isUser ? "#FFFFFF" : "#111827",
+            color: isUser ? "#FFFFFF" : colors.textPrimary,
           }}
         >
           {message.content}
@@ -324,7 +322,7 @@ function MessageBubble({ message }: { message: Message }) {
   );
 }
 
-function TypingIndicator() {
+function TypingIndicator({ colors }: { colors: AppColors }) {
   const dots = [0, 150, 300].map((delay) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const y = useSharedValue(0);
@@ -354,7 +352,7 @@ function TypingIndicator() {
           flexDirection: "row",
           alignItems: "center",
           gap: 5,
-          backgroundColor: "#F3F4F6",
+          backgroundColor: colors.backgroundMuted,
           borderRadius: 12,
           paddingHorizontal: 14,
           paddingVertical: 12,
@@ -368,7 +366,7 @@ function TypingIndicator() {
                 width: 7,
                 height: 7,
                 borderRadius: 3.5,
-                backgroundColor: ACCENT,
+                backgroundColor: colors.accent,
               },
               style,
             ]}

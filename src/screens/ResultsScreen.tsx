@@ -17,12 +17,10 @@ import DrugCard from "@/components/DrugCard";
 import ExplanationSheet from "@/components/ExplanationSheet";
 import type { DrugCandidate } from "@/types/index";
 import type { ResultsStackParamList } from "@/navigation/ResultsStack";
-
-const ACCENT = "#2563EB";
-const MUTED_FG = "#9CA3AF";
-const BORDER = "#E5E7EB";
+import { useThemeColors } from "@/theme/colors";
 
 export default function ResultsScreen() {
+  const C = useThemeColors();
   const { candidates, selectedDrug, selectedDisease, loading, selectDrug } =
     useAppContext();
 
@@ -52,31 +50,31 @@ export default function ResultsScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <View style={{ flex: 1, backgroundColor: C.background }}>
       <View
         style={{
           paddingHorizontal: 16,
           paddingTop: insets.top + 8,
           paddingBottom: 12,
           borderBottomWidth: 1,
-          borderBottomColor: BORDER,
+          borderBottomColor: C.border,
           flexDirection: "row",
           alignItems: "flex-start",
           justifyContent: "space-between",
         }}
       >
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}>
+          <Text style={{ fontSize: 16, fontWeight: "700", color: C.textPrimary }}>
             Drug Alternatives
           </Text>
-          <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 2 }}>
+          <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 2 }}>
             Ranked by repurposing potential
           </Text>
           {selectedDisease && (
             <Text
               style={{
                 fontSize: 11,
-                color: ACCENT,
+                color: C.accent,
                 marginTop: 4,
                 fontWeight: "500",
               }}
@@ -92,22 +90,22 @@ export default function ResultsScreen() {
             style={({ pressed }) => ({
               padding: 8,
               borderRadius: 6,
-              backgroundColor: pressed ? "#F3F4F6" : "transparent",
+              backgroundColor: pressed ? C.cardPressed : "transparent",
             })}
           >
-            <Info size={18} color={ACCENT} />
+            <Info size={18} color={C.accent} />
           </Pressable>
         )}
       </View>
 
       {loading.predict && (
         <View style={{ alignItems: "center", paddingVertical: 40 }}>
-          <ActivityIndicator size="large" color={ACCENT} />
-          <Text style={{ fontSize: 12, color: MUTED_FG, marginTop: 8 }}>
+          <ActivityIndicator size="large" color={C.accent} />
+          <Text style={{ fontSize: 12, color: C.textMuted, marginTop: 8 }}>
             Analyzing drug candidates…
           </Text>
           {selectedDisease && (
-            <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 4 }}>
+            <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>
               {selectedDisease.disease_name}
             </Text>
           )}
@@ -126,7 +124,7 @@ export default function ResultsScreen() {
           <Text
             style={{
               fontSize: 13,
-              color: MUTED_FG,
+              color: C.textMuted,
               textAlign: "center",
               lineHeight: 20,
             }}

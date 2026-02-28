@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import { Sparkles, AlertTriangle } from 'lucide-react-native';
 
 import type { DrugCandidate, Disease, NetworkData } from '@/types/index';
+import { useThemeColors } from '@/theme/colors';
 
 interface DrugAnalysisProps {
   drug: DrugCandidate;
@@ -11,16 +12,14 @@ interface DrugAnalysisProps {
   onOpenChatbot: () => void;
 }
 
-const ACCENT = '#2563EB';
-const MUTED_FG = '#9CA3AF';
-const BORDER = '#E5E7EB';
-
 export default function DrugAnalysis({
   drug,
   disease,
   networkData,
   onOpenChatbot,
 }: DrugAnalysisProps) {
+  const C = useThemeColors();
+
   const mechanismText =
     drug.mechanism && drug.mechanism !== 'Unknown'
       ? drug.mechanism
@@ -42,13 +41,13 @@ export default function DrugAnalysis({
           marginBottom: 12,
         }}
       >
-        <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>Drug Details</Text>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: C.textPrimary }}>Drug Details</Text>
         <Pressable
           onPress={onOpenChatbot}
           style={({ pressed }) => ({
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: pressed ? 'rgba(37,99,235,0.85)' : ACCENT,
+            backgroundColor: pressed ? C.accentPressed : C.accent,
             paddingHorizontal: 10,
             paddingVertical: 5,
             borderRadius: 6,
@@ -61,14 +60,14 @@ export default function DrugAnalysis({
       </View>
 
       {/* Drug Name — full width */}
-      <InfoRow label="Drug Name" value={drug.drug_name} bold />
+      <InfoRow label="Drug Name" value={drug.drug_name} bold colors={C} />
 
       <View style={{ flexDirection: 'row', gap: 16, marginTop: 8 }}>
         <View style={{ flex: 1 }}>
-          <InfoRow label="ChEMBL ID" value={drug.drug_id} mono />
+          <InfoRow label="ChEMBL ID" value={drug.drug_id} mono colors={C} />
         </View>
         <View style={{ flex: 1 }}>
-          <InfoRow label="Rank" value={`#${drug.rank}`} />
+          <InfoRow label="Rank" value={`#${drug.rank}`} colors={C} />
         </View>
       </View>
 
@@ -77,24 +76,27 @@ export default function DrugAnalysis({
           <InfoRow
             label="Repurposing Score"
             value={`${(drug.score * 100).toFixed(1)}% (${drug.confidence})`}
+            colors={C}
           />
         </View>
         <View style={{ flex: 1 }}>
           <InfoRow
             label="Association Score"
             value={drug.association_score ? drug.association_score.toFixed(3) : 'N/A'}
+            colors={C}
           />
         </View>
       </View>
 
       <View style={{ flexDirection: 'row', gap: 16, marginTop: 8 }}>
         <View style={{ flex: 1 }}>
-          <InfoRow label="Drug Type" value={drug.drug_type ?? 'Unknown'} />
+          <InfoRow label="Drug Type" value={drug.drug_type ?? 'Unknown'} colors={C} />
         </View>
         <View style={{ flex: 1 }}>
           <InfoRow
             label="Max Clinical Phase"
             value={drug.max_phase > 0 ? `Phase ${drug.max_phase}` : 'Preclinical'}
+            colors={C}
           />
         </View>
       </View>
@@ -104,19 +106,20 @@ export default function DrugAnalysis({
           <InfoRow
             label="Gene Overlap"
             value={`${drug.gene_overlap} ${drug.gene_overlap === 1 ? 'gene' : 'genes'}`}
+            colors={C}
           />
         </View>
         <View style={{ flex: 1 }}>
-          <InfoRow label="Disease Context" value={disease.disease_name} truncate />
+          <InfoRow label="Disease Context" value={disease.disease_name} truncate colors={C} />
         </View>
       </View>
 
-      <View style={{ borderTopWidth: 1, borderTopColor: BORDER, paddingTop: 10, marginTop: 12, marginBottom: 10 }}>
+      <View style={{ borderTopWidth: 1, borderTopColor: C.border, paddingTop: 10, marginTop: 12, marginBottom: 10 }}>
         <Text
           style={{
             fontSize: 9,
             fontWeight: '500',
-            color: MUTED_FG,
+            color: C.textMuted,
             textTransform: 'uppercase',
             letterSpacing: 0.8,
             marginBottom: 4,
@@ -124,16 +127,16 @@ export default function DrugAnalysis({
         >
           Mechanism of Action
         </Text>
-        <Text style={{ fontSize: 10, color: '#111827', lineHeight: 16 }}>{mechanismText}</Text>
+        <Text style={{ fontSize: 10, color: C.textPrimary, lineHeight: 16 }}>{mechanismText}</Text>
       </View>
 
       {targetNodes.length > 0 && (
-        <View style={{ borderTopWidth: 1, borderTopColor: BORDER, paddingTop: 10, marginBottom: 10 }}>
+        <View style={{ borderTopWidth: 1, borderTopColor: C.border, paddingTop: 10, marginBottom: 10 }}>
           <Text
             style={{
               fontSize: 9,
               fontWeight: '500',
-              color: MUTED_FG,
+              color: C.textMuted,
               textTransform: 'uppercase',
               letterSpacing: 0.8,
               marginBottom: 6,
@@ -147,9 +150,9 @@ export default function DrugAnalysis({
                 <View
                   key={n.id}
                   style={{
-                    backgroundColor: '#F3F4F6',
+                    backgroundColor: C.tagBg,
                     borderWidth: 1,
-                    borderColor: '#E5E7EB',
+                    borderColor: C.tagBorder,
                     borderRadius: 4,
                     paddingHorizontal: 6,
                     paddingVertical: 2,
@@ -158,7 +161,7 @@ export default function DrugAnalysis({
                   <Text
                     style={{
                       fontSize: 9,
-                      color: '#374151',
+                      color: C.tagText,
                       fontFamily:
                         Platform.OS === 'ios' ? 'Courier' : 'monospace',
                     }}
@@ -176,7 +179,7 @@ export default function DrugAnalysis({
         <View
           style={{
             borderTopWidth: 1,
-            borderTopColor: BORDER,
+            borderTopColor: C.border,
             paddingTop: 10,
           }}
         >
@@ -184,16 +187,16 @@ export default function DrugAnalysis({
             style={{
               flexDirection: 'row',
               alignItems: 'flex-start',
-              backgroundColor: '#FFFBEB',
+              backgroundColor: C.warningBg,
               borderWidth: 1,
-              borderColor: '#FDE68A',
+              borderColor: C.warningBorder,
               borderRadius: 6,
               padding: 8,
               gap: 6,
             }}
           >
-            <AlertTriangle size={11} color="#D97706" style={{ marginTop: 1 }} />
-            <Text style={{ fontSize: 9, color: '#92400E', flex: 1, lineHeight: 14 }}>
+            <AlertTriangle size={11} color={C.warningIcon} style={{ marginTop: 1 }} />
+            <Text style={{ fontSize: 9, color: C.warningText, flex: 1, lineHeight: 14 }}>
               {drug.guardrail}
             </Text>
           </View>
@@ -209,22 +212,24 @@ function InfoRow({
   bold,
   mono,
   truncate,
+  colors,
 }: {
   label: string;
   value: string;
   bold?: boolean;
   mono?: boolean;
   truncate?: boolean;
+  colors: ReturnType<typeof useThemeColors>;
 }) {
   return (
     <View>
-      <Text style={{ fontSize: 9, color: MUTED_FG, marginBottom: 2 }}>{label}</Text>
+      <Text style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2 }}>{label}</Text>
       <Text
         numberOfLines={truncate ? 1 : undefined}
         style={{
           fontSize: bold ? 12 : 10,
           fontWeight: bold ? '600' : mono ? '400' : '500',
-          color: '#111827',
+          color: colors.textPrimary,
           fontFamily: mono
             ? Platform.OS === 'ios'
               ? 'Courier'

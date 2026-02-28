@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import type { DrugCandidate } from '@/types/index';
+import { useThemeColors } from '@/theme/colors';
 
 interface DrugCardProps {
   drug: DrugCandidate;
@@ -10,14 +11,11 @@ interface DrugCardProps {
   onPress: (drug: DrugCandidate) => void;
 }
 
-const ACCENT = '#2563EB';
-const MUTED_FG = '#9CA3AF';
-const BORDER = '#E5E7EB';
-
 export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardProps) {
+  const C = useThemeColors();
   const isTop = index === 0;
   const confidenceColor =
-    drug.confidence === 'High' ? '#059669' : '#D97706'; // emerald-600 / amber-600
+    drug.confidence === 'High' ? C.confidenceHigh : C.confidenceMed;
 
   const mechanismText =
     drug.mechanism && drug.mechanism !== 'Unknown'
@@ -34,12 +32,12 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
         style={({ pressed }) => ({
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: isSelected ? 'rgba(37,99,235,0.3)' : BORDER,
+          borderColor: isSelected ? C.accentBorder : C.border,
           backgroundColor: pressed
-            ? 'rgba(37,99,235,0.03)'
+            ? C.accentSubtle
             : isSelected
-            ? 'rgba(37,99,235,0.05)'
-            : '#FFFFFF',
+            ? C.accentSubtle
+            : C.card,
           padding: isTop ? 12 : 10,
           marginBottom: 8,
         })}
@@ -50,7 +48,7 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
               width: isTop ? 24 : 20,
               height: isTop ? 24 : 20,
               borderRadius: isTop ? 12 : 10,
-              backgroundColor: isTop ? ACCENT : '#F3F4F6',
+              backgroundColor: isTop ? C.accent : C.backgroundMuted,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -59,7 +57,7 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
               style={{
                 fontSize: 10,
                 fontWeight: isTop ? '600' : '500',
-                color: isTop ? '#FFFFFF' : MUTED_FG,
+                color: isTop ? '#FFFFFF' : C.textMuted,
               }}
             >
               {drug.rank}
@@ -70,7 +68,7 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
             <Text style={{ fontSize: 10, fontWeight: '500', color: confidenceColor }}>
               {Math.round(drug.score * 100)}%
             </Text>
-            <Text style={{ fontSize: 9, color: MUTED_FG, textTransform: 'capitalize' }}>
+            <Text style={{ fontSize: 9, color: C.textMuted, textTransform: 'capitalize' }}>
               {drug.confidence}
             </Text>
           </View>
@@ -80,7 +78,7 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
           style={{
             fontSize: isTop ? 18 : 15,
             fontWeight: '600',
-            color: isSelected ? ACCENT : '#111827',
+            color: isSelected ? C.accent : C.textPrimary,
             marginBottom: 2,
           }}
         >
@@ -88,14 +86,14 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
         </Text>
 
         {drug.drug_type && drug.drug_type !== 'Unknown' && (
-          <Text style={{ fontSize: 11, color: MUTED_FG, marginTop: 2 }}>
+          <Text style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>
             Current use: {drug.drug_type}
           </Text>
         )}
 
         <Text
           numberOfLines={2}
-          style={{ fontSize: isTop ? 10 : 9, color: MUTED_FG, marginTop: 6, lineHeight: 14 }}
+          style={{ fontSize: isTop ? 10 : 9, color: C.textMuted, marginTop: 6, lineHeight: 14 }}
         >
           {mechanismText}
         </Text>
@@ -104,13 +102,13 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
           <View
             style={{
               marginTop: 6,
-              backgroundColor: '#FFFBEB',
+              backgroundColor: C.warningBg,
               borderRadius: 4,
               paddingHorizontal: 6,
               paddingVertical: 3,
             }}
           >
-            <Text style={{ fontSize: 9, color: '#B45309' }}>{drug.guardrail}</Text>
+            <Text style={{ fontSize: 9, color: C.warningText }}>{drug.guardrail}</Text>
           </View>
         )}
       </Pressable>

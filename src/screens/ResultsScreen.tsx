@@ -1,43 +1,40 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback } from "react";
 import {
   View,
   Text,
   ActivityIndicator,
   Pressable,
   FlatList,
-} from 'react-native';
-import { Info } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type BottomSheet from '@gorhom/bottom-sheet';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Info } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type BottomSheet from "@gorhom/bottom-sheet";
 
-import { useAppContext } from '@/context/AppContext';
-import DrugCard from '@/components/DrugCard';
-import ExplanationSheet from '@/components/ExplanationSheet';
-import type { DrugCandidate } from '@/types/index';
-import type { ResultsStackParamList } from '@/navigation/ResultsStack';
+import { useAppContext } from "@/context/AppContext";
+import DrugCard from "@/components/DrugCard";
+import ExplanationSheet from "@/components/ExplanationSheet";
+import type { DrugCandidate } from "@/types/index";
+import type { ResultsStackParamList } from "@/navigation/ResultsStack";
 
-const ACCENT = '#2563EB';
-const MUTED_FG = '#9CA3AF';
-const BORDER = '#E5E7EB';
+const ACCENT = "#2563EB";
+const MUTED_FG = "#9CA3AF";
+const BORDER = "#E5E7EB";
 
 export default function ResultsScreen() {
-  const {
-    candidates,
-    selectedDrug,
-    selectedDisease,
-    loading,
-    selectDrug,
-  } = useAppContext();
+  const { candidates, selectedDrug, selectedDisease, loading, selectDrug } =
+    useAppContext();
 
   const navigation =
     useNavigation<NativeStackNavigationProp<ResultsStackParamList>>();
   const sheetRef = useRef<BottomSheet>(null);
+  const insets = useSafeAreaInsets();
 
   const handleDrugPress = useCallback(
     async (drug: DrugCandidate) => {
       await selectDrug(drug);
-      navigation.navigate('DrugDetail');
+      navigation.navigate("DrugDetail");
     },
     [selectDrug, navigation],
   );
@@ -55,28 +52,35 @@ export default function ResultsScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <View
         style={{
           paddingHorizontal: 16,
-          paddingTop: 52,
+          paddingTop: insets.top + 8,
           paddingBottom: 12,
           borderBottomWidth: 1,
           borderBottomColor: BORDER,
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
         }}
       >
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827' }}>
+          <Text style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}>
             Drug Alternatives
           </Text>
           <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 2 }}>
             Ranked by repurposing potential
           </Text>
           {selectedDisease && (
-            <Text style={{ fontSize: 11, color: ACCENT, marginTop: 4, fontWeight: '500' }}>
+            <Text
+              style={{
+                fontSize: 11,
+                color: ACCENT,
+                marginTop: 4,
+                fontWeight: "500",
+              }}
+            >
               {selectedDisease.disease_name}
             </Text>
           )}
@@ -88,7 +92,7 @@ export default function ResultsScreen() {
             style={({ pressed }) => ({
               padding: 8,
               borderRadius: 6,
-              backgroundColor: pressed ? '#F3F4F6' : 'transparent',
+              backgroundColor: pressed ? "#F3F4F6" : "transparent",
             })}
           >
             <Info size={18} color={ACCENT} />
@@ -97,7 +101,7 @@ export default function ResultsScreen() {
       </View>
 
       {loading.predict && (
-        <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+        <View style={{ alignItems: "center", paddingVertical: 40 }}>
           <ActivityIndicator size="large" color={ACCENT} />
           <Text style={{ fontSize: 12, color: MUTED_FG, marginTop: 8 }}>
             Analyzing drug candidates…
@@ -111,9 +115,24 @@ export default function ResultsScreen() {
       )}
 
       {!loading.predict && candidates.length === 0 && (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
-          <Text style={{ fontSize: 13, color: MUTED_FG, textAlign: 'center', lineHeight: 20 }}>
-            Select a disease from the Search tab to see predicted drug repurposing candidates
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 24,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 13,
+              color: MUTED_FG,
+              textAlign: "center",
+              lineHeight: 20,
+            }}
+          >
+            Select a disease from the Search tab to see predicted drug
+            repurposing candidates
           </Text>
         </View>
       )}
@@ -121,7 +140,7 @@ export default function ResultsScreen() {
       {!loading.predict && candidates.length > 0 && (
         <FlatList
           data={candidates}
-          keyExtractor={item => item.drug_id}
+          keyExtractor={(item) => item.drug_id}
           renderItem={renderItem}
           contentContainerStyle={{ padding: 12 }}
           showsVerticalScrollIndicator={false}

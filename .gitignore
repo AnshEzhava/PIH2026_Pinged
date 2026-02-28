@@ -40,3 +40,15 @@ yarn-error.*
 /ios
 /android
 yarn.lock
+
+# ── Backend (Python) ──────────────────────────────────────────────────
+backend/.venv/
+backend/__pycache__/
+backend/src/__pycache__/
+backend/data/cache/opentargets/
+backend/cache/
+backend/.env
+# Keep model files, but not large training artefacts
+backend/models/*.parquet
+backend/models/*.npy
+backend/models/*.csv

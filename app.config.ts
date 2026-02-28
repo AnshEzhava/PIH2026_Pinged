@@ -32,12 +32,24 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     /**
      * Backend API base URL.
-     * Set API_BASE_URL env var before running `expo start` to override.
+     *
+     * Start the backend:
+     *   .\start_backend.ps1                (Windows PowerShell)
+     *   or: cd backend && uvicorn main:app
+     *
+     * The backend lives in ./backend/ (colocated with the app).
+     * It runs on port 8000 with the optimised XGBoost pipeline:
+     *   - Parallel drug scoring (8 workers)
+     *   - AlphaFold skipped (NaN → XGBoost handles natively)
+     *   - 22 popular diseases pre-warmed at startup
+     *   - Persistent disk cache in backend/cache/
+     *
+     * Override by setting API_BASE_URL env var before `expo start`.
      *
      * Defaults:
-     *   Android emulator  → http://10.0.2.2:8000/api
-     *   iOS simulator     → http://localhost:8000/api
-     *   Physical device   → http://<your-LAN-IP>:8000/api
+     *   Android emulator → http://10.0.2.2:8000/api
+     *   iOS simulator    → http://localhost:8000/api
+     *   Physical device  → http://<your-LAN-IP>:8000/api
      */
     apiBaseUrl: process.env.API_BASE_URL ?? 'http://10.0.2.2:8000/api',
   },

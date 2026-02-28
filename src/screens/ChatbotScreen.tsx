@@ -1,15 +1,3 @@
-/**
- * ChatbotScreen — Phase 9 port of ChatbotPopup.js
- *
- * Replaces:
- *   Fixed-position modal overlay    → Full-screen modal (pushed onto stack or
- *                                     opened by setShowChatbot context flag)
- *   Overflow-y scroll container     → FlatList inverted (standard chat pattern)
- *   animate-bounce three dots       → Reanimated withRepeat/withSequence
- *   <textarea> + Enter key          → <TextInput multiline> + onSubmitEditing
- *   Suggested question <button>s    → <ScrollView horizontal> + <Pressable> chips
- */
-
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
@@ -35,20 +23,14 @@ import { Sparkles, Send, X } from 'lucide-react-native';
 import { chatWithGemini } from '@/services/index';
 import { useAppContext } from '@/context/AppContext';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
 const BORDER = '#E5E7EB';
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ChatbotScreen() {
   const { selectedDrug, selectedDisease, showChatbot, setShowChatbot } = useAppContext();
@@ -81,7 +63,6 @@ export default function ChatbotScreen() {
       ]
     : [];
 
-  // ── Send message ─────────────────────────────────────────────────────────────
   const handleSend = useCallback(
     async (questionOverride?: string) => {
       const text = (questionOverride ?? input).trim();
@@ -121,7 +102,6 @@ export default function ChatbotScreen() {
     [input, loading, selectedDrug, selectedDisease],
   );
 
-  // ── Render message bubble ────────────────────────────────────────────────────
   const renderItem = useCallback(({ item }: { item: Message }) => (
     <MessageBubble message={item} />
   ), []);
@@ -139,7 +119,6 @@ export default function ChatbotScreen() {
         style={{ flex: 1, backgroundColor: '#FFFFFF' }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* ── Header ──────────────────────────────────────────────────────── */}
         <View
           style={{
             paddingTop: Platform.OS === 'ios' ? 20 : 16,
@@ -176,7 +155,6 @@ export default function ChatbotScreen() {
           </Pressable>
         </View>
 
-        {/* ── Message list ─────────────────────────────────────────────────── */}
         <FlatList
           ref={listRef}
           data={[...messages].reverse()}
@@ -188,7 +166,6 @@ export default function ChatbotScreen() {
           ListHeaderComponent={loading ? <TypingIndicator /> : null}
         />
 
-        {/* ── Suggested questions ──────────────────────────────────────────── */}
         {messages.length <= 1 && (
           <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderTopWidth: 1, borderTopColor: BORDER, backgroundColor: 'rgba(249,250,251,0.5)' }}>
             <Text style={{ fontSize: 11, fontWeight: '500', color: MUTED_FG, marginBottom: 6 }}>
@@ -219,7 +196,6 @@ export default function ChatbotScreen() {
           </View>
         )}
 
-        {/* ── Input bar ───────────────────────────────────────────────────── */}
         <View
           style={{
             paddingHorizontal: 12,
@@ -282,8 +258,6 @@ export default function ChatbotScreen() {
   );
 }
 
-// ─── MessageBubble ─────────────────────────────────────────────────────────────
-
 function MessageBubble({ message }: { message: Message }) {
   const isUser = message.role === 'user';
   return (
@@ -315,8 +289,6 @@ function MessageBubble({ message }: { message: Message }) {
     </View>
   );
 }
-
-// ─── TypingIndicator ───────────────────────────────────────────────────────────
 
 function TypingIndicator() {
   const dots = [0, 150, 300].map(delay => {

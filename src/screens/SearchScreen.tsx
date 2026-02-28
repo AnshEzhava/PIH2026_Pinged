@@ -1,14 +1,3 @@
-/**
- * SearchScreen — Phase 5 port of DiseasePanel.js
- *
- * Replaces:
- *   <motion.button>          → <Pressable> + Reanimated FadeInLeft
- *   <details>/<summary>      → Pressable-toggled expanded state
- *   <input>                  → <TextInput>
- *   <ul>/<li>                → <FlatList>
- *   animate-spin <div>       → <ActivityIndicator>
- */
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
@@ -30,8 +19,6 @@ import { useAppContext } from '@/context/AppContext';
 import type { Disease } from '@/types/index';
 import type { TabParamList } from '@/navigation/TabNavigator';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
 const BORDER = '#E5E7EB';
@@ -47,14 +34,12 @@ export default function SearchScreen() {
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
   const [directId, setDirectId] = useState('');
 
-  // ── On mount: load popular diseases ────────────────────────────────────────
   useEffect(() => {
     getPopularDiseases()
       .then(setDiseases)
       .catch(() => setDiseases([]));
   }, []);
 
-  // ── Search handler ──────────────────────────────────────────────────────────
   const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
     if (query.length < 2) {
@@ -72,7 +57,6 @@ export default function SearchScreen() {
     }
   }, []);
 
-  // ── Disease select ──────────────────────────────────────────────────────────
   const handleSelect = useCallback(
     async (disease: Disease) => {
       await selectDisease(disease);
@@ -81,7 +65,6 @@ export default function SearchScreen() {
     [selectDisease, navigation],
   );
 
-  // ── Advanced: direct ID entry ───────────────────────────────────────────────
   const handleDirectIdSubmit = useCallback(() => {
     if (directId.trim()) {
       handleSelect({ disease_id: directId.trim(), disease_name: directId.trim() });
@@ -89,7 +72,6 @@ export default function SearchScreen() {
     }
   }, [directId, handleSelect]);
 
-  // ── Render item ─────────────────────────────────────────────────────────────
   const renderItem = useCallback(
     ({ item, index }: { item: Disease; index: number }) => {
       const isSelected = selectedDisease?.disease_id === item.disease_id;
@@ -158,7 +140,6 @@ export default function SearchScreen() {
       style={{ flex: 1, backgroundColor: '#FFFFFF' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <View style={{ paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: BORDER }}>
         <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827' }}>Disease Context</Text>
         <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 2, lineHeight: 16 }}>
@@ -166,7 +147,6 @@ export default function SearchScreen() {
         </Text>
       </View>
 
-      {/* ── Error banner ────────────────────────────────────────────────────── */}
       {error && (
         <Pressable
           onPress={clearError}
@@ -186,7 +166,6 @@ export default function SearchScreen() {
         </Pressable>
       )}
 
-      {/* ── Loading predict indicator ────────────────────────────────────────── */}
       {loading.predict && (
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 8, gap: 6 }}>
           <ActivityIndicator size="small" color={ACCENT} />
@@ -194,7 +173,6 @@ export default function SearchScreen() {
         </View>
       )}
 
-      {/* ── Search input ────────────────────────────────────────────────────── */}
       <View style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
         <View
           style={{
@@ -228,7 +206,6 @@ export default function SearchScreen() {
         </View>
       </View>
 
-      {/* ── Disease list ────────────────────────────────────────────────────── */}
       <FlatList
         data={diseases}
         keyExtractor={item => item.disease_id}
@@ -244,7 +221,6 @@ export default function SearchScreen() {
         keyboardShouldPersistTaps="handled"
       />
 
-      {/* ── Advanced Input ───────────────────────────────────────────────────── */}
       <View style={{ borderTopWidth: 1, borderTopColor: BORDER, paddingHorizontal: 12, paddingVertical: 8 }}>
         <Pressable
           onPress={() => setAdvancedExpanded(v => !v)}

@@ -1,11 +1,3 @@
-/**
- * DrugCard — reusable card for a single drug candidate.
- * Port of the card JSX inside DrugCandidates.js.
- *
- * All business logic (confidence colour mapping, mechanism formatting,
- * guardrail rendering, rank badge) is copied verbatim from the web.
- */
-
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -52,9 +44,7 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
           marginBottom: 8,
         })}
       >
-        {/* Rank + Score row */}
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
-          {/* Rank badge */}
           <View
             style={{
               width: isTop ? 24 : 20,
@@ -76,7 +66,6 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
             </Text>
           </View>
 
-          {/* Score + tier */}
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={{ fontSize: 10, fontWeight: '500', color: confidenceColor }}>
               {Math.round(drug.score * 100)}%
@@ -87,7 +76,6 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
           </View>
         </View>
 
-        {/* Drug name */}
         <Text
           style={{
             fontSize: isTop ? 18 : 15,
@@ -99,14 +87,12 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
           {drug.drug_name}
         </Text>
 
-        {/* Drug type */}
         {drug.drug_type && drug.drug_type !== 'Unknown' && (
           <Text style={{ fontSize: 11, color: MUTED_FG, marginTop: 2 }}>
             Current use: {drug.drug_type}
           </Text>
         )}
 
-        {/* Mechanism */}
         <Text
           numberOfLines={2}
           style={{ fontSize: isTop ? 10 : 9, color: MUTED_FG, marginTop: 6, lineHeight: 14 }}
@@ -114,7 +100,6 @@ export default function DrugCard({ drug, index, isSelected, onPress }: DrugCardP
           {mechanismText}
         </Text>
 
-        {/* Guardrail */}
         {drug.guardrail && (
           <View
             style={{

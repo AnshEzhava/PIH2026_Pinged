@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NativeWind v4 — scan all source files
   content: [
     "./App.{js,jsx,ts,tsx}",
     "./index.{js,jsx,ts,tsx}",
@@ -10,7 +9,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Ported directly from DrugRepurposeV2 web tailwind.config.js
         background: '#FAFAFA',
         foreground: '#0A0A0A',
         muted: {

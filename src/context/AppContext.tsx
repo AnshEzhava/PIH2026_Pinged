@@ -1,10 +1,3 @@
-/**
- * AppContext — global state for the Pinged RN app.
- *
- * Holds the same state variables as App.js in the original web app and exposes
- * two action callbacks (selectDisease, selectDrug) that fire the API calls.
- */
-
 import React, {
   createContext,
   useCallback,
@@ -29,10 +22,7 @@ import type {
   StructureData,
 } from '@/types/index';
 
-// ─── Context shape ────────────────────────────────────────────────────────────
-
 interface AppContextType {
-  // State
   selectedDisease: Disease | null;
   candidates: DrugCandidate[];
   selectedDrug: DrugCandidate | null;
@@ -42,19 +32,13 @@ interface AppContextType {
   loading: LoadingState;
   error: string | null;
   showChatbot: boolean;
-
-  // Actions
   selectDisease: (disease: Disease) => Promise<void>;
   selectDrug: (drug: DrugCandidate) => Promise<void>;
   setShowChatbot: (show: boolean) => void;
   clearError: () => void;
 }
 
-// ─── Context creation ─────────────────────────────────────────────────────────
-
 const AppContext = createContext<AppContextType | undefined>(undefined);
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedDisease, setSelectedDisease] = useState<Disease | null>(null);
@@ -72,8 +56,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [showChatbot, setShowChatbot] = useState(false);
 
-  // ── selectDisease ──────────────────────────────────────────────────────────
-
   const selectDisease = useCallback(async (disease: Disease): Promise<void> => {
     setSelectedDisease(disease);
     setCandidates([]);
@@ -88,21 +70,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const result = await predictCandidates(disease.disease_id, 5);
       setCandidates(result.candidates ?? []);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Unknown error';
-      // axios error shape
+      const msg = err instanceof Error ? err.message : 'Unknown error';
       const detail =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail;
-      setError(
-        'Failed to predict drug candidates. ' + (detail ?? msg),
-      );
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setError('Failed to predict drug candidates. ' + (detail ?? msg));
     } finally {
       setLoading(prev => ({ ...prev, predict: false }));
     }
   }, []);
-
-  // ── selectDrug ─────────────────────────────────────────────────────────────
 
   const selectDrug = useCallback(
     async (drug: DrugCandidate): Promise<void> => {
@@ -133,10 +108,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       const fetchNetwork = async () => {
         try {
-          const data = await getDrugDiseaseNetwork(
-            drug.drug_id,
-            selectedDisease.disease_id,
-          );
+          const data = await getDrugDiseaseNetwork(drug.drug_id, selectedDisease.disease_id);
           setNetworkData(data);
         } catch (err) {
           console.error('Network fetch failed:', err);
@@ -163,8 +135,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [selectedDisease],
   );
 
-  // ── value ──────────────────────────────────────────────────────────────────
-
   const value: AppContextType = {
     selectedDisease,
     candidates,
@@ -183,8 +153,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAppContext(): AppContextType {
   const ctx = useContext(AppContext);

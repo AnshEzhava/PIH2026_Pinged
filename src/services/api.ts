@@ -1,15 +1,3 @@
-/**
- * API service — TypeScript port of DrugRepurposeV2-main/frontend/src/services/api.js
- *
- * Backend URL configuration:
- *   Android emulator : http://10.0.2.2:8000/api
- *   iOS simulator    : http://localhost:8000/api
- *   Physical device  : http://<your-LAN-IP>:8000/api
- *   Production       : https://<deployed-domain>/api
- *
- * Set via API_BASE_URL in app.config.ts → Constants.expoConfig.extra.apiBaseUrl
- */
-
 import axios from 'axios';
 import Constants from 'expo-constants';
 
@@ -24,35 +12,25 @@ import type {
   PredictResponse,
 } from '@/types/index';
 
-// ─── Base URL ────────────────────────────────────────────────────────────────
-
 const API_BASE: string =
   (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ??
   'http://10.0.2.2:8000/api';
 
-// ─── Axios instance ──────────────────────────────────────────────────────────
-
 const api = axios.create({
   baseURL: API_BASE,
-  // 600s timeout — ML prediction over the network can be slow
   timeout: 600_000,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ─── Disease endpoints ───────────────────────────────────────────────────────
-
-/** Returns the hardcoded list of ~22 popular diseases from the backend. */
 export const getPopularDiseases = (): Promise<Disease[]> =>
   api.get<Disease[]>('/diseases/popular').then(r => r.data);
 
-/** Searches diseases via OpenTargets GraphQL; requires query length >= 2. */
+/** Requires query length >= 2. */
 export const searchDiseases = (query: string): Promise<Disease[]> =>
   api.get<Disease[]>('/diseases/search', { params: { q: query } }).then(r => r.data);
 
-// ─── Prediction endpoint ─────────────────────────────────────────────────────
-
 /**
- * Core ML prediction — scores up to 100 candidates via XGBoost + PostModelGates.
+ * Scores drug candidates via XGBoost + PostModelGates.
  * Returns top-k ranked DrugCandidates for the given disease.
  */
 export const predictCandidates = (
@@ -65,9 +43,6 @@ export const predictCandidates = (
     })
     .then(r => r.data);
 
-// ─── Drug detail endpoints ───────────────────────────────────────────────────
-
-/** Fetches drug type, max clinical phase, mechanism class from OpenTargets. */
 export const getDrugDetails = (drugId: string): Promise<DrugDetails> =>
   api.get<DrugDetails>(`/drug/${drugId}/details`).then(r => r.data);
 
@@ -79,8 +54,7 @@ export const getDrugStructure = (drugId: string): Promise<StructureData> =>
   api.get<StructureData>(`/drug/${drugId}/structure`).then(r => r.data);
 
 /**
- * Builds drug → target → disease network graph data.
- * Uses OpenTargets to fetch drug targets + disease-associated genes.
+ * Builds drug → target → disease network graph data using OpenTargets.
  */
 export const getDrugDiseaseNetwork = (
   drugId: string,
@@ -90,9 +64,6 @@ export const getDrugDiseaseNetwork = (
     .get<NetworkData>(`/drug/${drugId}/network/${encodeURIComponent(diseaseId)}`)
     .then(r => r.data);
 
-// ─── Gemini AI endpoints ─────────────────────────────────────────────────────
-
-/** Returns structured AI explanation (summary, mechanism, contraindications). */
 export const getGeminiExplanation = (
   drugName: string,
   diseaseName: string,
@@ -108,7 +79,6 @@ export const getGeminiExplanation = (
     })
     .then(r => r.data);
 
-/** Chatbot Q&A about a specific drug-disease pair. */
 export const chatWithGemini = (
   drugName: string,
   diseaseName: string,
@@ -128,7 +98,5 @@ export const chatWithGemini = (
       { params: { question } },
     )
     .then(r => r.data);
-
-// ─── Default export ──────────────────────────────────────────────────────────
 
 export default api;

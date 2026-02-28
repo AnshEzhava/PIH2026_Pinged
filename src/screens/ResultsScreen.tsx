@@ -1,13 +1,3 @@
-/**
- * ResultsScreen — Phase 6 port of DrugCandidates.js
- *
- * Replaces:
- *   Scrollable <div>         → FlatList
- *   <Loader2 animate-spin>   → ActivityIndicator
- *   <AnimatePresence> modal  → ExplanationSheet bottom sheet (ref)
- *   <motion.button>          → DrugCard with Reanimated FadeInDown
- */
-
 import React, { useRef, useCallback } from 'react';
 import {
   View,
@@ -27,8 +17,6 @@ import ExplanationSheet from '@/components/ExplanationSheet';
 import type { DrugCandidate } from '@/types/index';
 import type { ResultsStackParamList } from '@/navigation/ResultsStack';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
 const BORDER = '#E5E7EB';
@@ -46,7 +34,6 @@ export default function ResultsScreen() {
     useNavigation<NativeStackNavigationProp<ResultsStackParamList>>();
   const sheetRef = useRef<BottomSheet>(null);
 
-  // ── Select drug ─────────────────────────────────────────────────────────────
   const handleDrugPress = useCallback(
     async (drug: DrugCandidate) => {
       await selectDrug(drug);
@@ -55,7 +42,6 @@ export default function ResultsScreen() {
     [selectDrug, navigation],
   );
 
-  // ── Render drug card ─────────────────────────────────────────────────────────
   const renderItem = useCallback(
     ({ item, index }: { item: DrugCandidate; index: number }) => (
       <DrugCard
@@ -70,7 +56,6 @@ export default function ResultsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <View
         style={{
           paddingHorizontal: 16,
@@ -97,7 +82,6 @@ export default function ResultsScreen() {
           )}
         </View>
 
-        {/* Info button — opens ExplanationSheet */}
         {selectedDrug && (
           <Pressable
             onPress={() => sheetRef.current?.expand()}
@@ -112,7 +96,6 @@ export default function ResultsScreen() {
         )}
       </View>
 
-      {/* ── Loading state ────────────────────────────────────────────────────── */}
       {loading.predict && (
         <View style={{ alignItems: 'center', paddingVertical: 40 }}>
           <ActivityIndicator size="large" color={ACCENT} />
@@ -127,7 +110,6 @@ export default function ResultsScreen() {
         </View>
       )}
 
-      {/* ── Empty state ──────────────────────────────────────────────────────── */}
       {!loading.predict && candidates.length === 0 && (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
           <Text style={{ fontSize: 13, color: MUTED_FG, textAlign: 'center', lineHeight: 20 }}>
@@ -136,7 +118,6 @@ export default function ResultsScreen() {
         </View>
       )}
 
-      {/* ── Candidate list ───────────────────────────────────────────────────── */}
       {!loading.predict && candidates.length > 0 && (
         <FlatList
           data={candidates}
@@ -147,7 +128,6 @@ export default function ResultsScreen() {
         />
       )}
 
-      {/* ── Explanation sheet ────────────────────────────────────────────────── */}
       <ExplanationSheet
         ref={sheetRef}
         drug={selectedDrug}

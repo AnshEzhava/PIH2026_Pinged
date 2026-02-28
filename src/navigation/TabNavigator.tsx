@@ -1,7 +1,3 @@
-/**
- * TabNavigator — bottom tab bar with Search and Results tabs.
- */
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Search, FlaskConical } from 'lucide-react-native';
@@ -16,7 +12,6 @@ export type TabParamList = {
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// Accent colour from tailwind.config color tokens
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
 

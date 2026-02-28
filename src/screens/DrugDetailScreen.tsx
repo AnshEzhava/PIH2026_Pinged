@@ -1,15 +1,3 @@
-/**
- * DrugDetailScreen — Phase 7
- *
- * Three sections stacked in a ScrollView:
- *   1. NetworkGraph (placeholder → Phase 10)
- *   2. MoleculeViewer (placeholder → Phase 11)
- *   3. DrugAnalysis
- *
- * Each section is wrapped in a card View matching the web's
- * `bg-white rounded-lg border border-border` pattern.
- */
-
 import React, { useRef } from 'react';
 import {
   View,
@@ -25,8 +13,7 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import { useAppContext } from '@/context/AppContext';
 import DrugAnalysis from '@/components/DrugAnalysis';
 import ExplanationSheet from '@/components/ExplanationSheet';
-
-// ─── Constants ────────────────────────────────────────────────────────────────
+import NetworkGraph from '@/components/NetworkGraph';
 
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
@@ -56,7 +43,6 @@ export default function DrugDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-      {/* ── Navigation header ─────────────────────────────────────────────── */}
       <View
         style={{
           paddingTop: 52,
@@ -91,34 +77,25 @@ export default function DrugDetailScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 12, gap: 12 }} showsVerticalScrollIndicator={false}>
-        {/* ── Network Graph card ────────────────────────────────────────────── */}
         <SectionCard title="Drug-Disease Network">
           {loading.network ? (
             <LoadingPlaceholder label="Loading network…" />
           ) : networkData ? (
-            /* NetworkGraph placeholder — Phase 10 will replace this */
-            <View style={{ height: CARD_HEIGHT, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 12, color: MUTED_FG }}>
-                Network graph — coming in Phase 10
-              </Text>
-              <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 4 }}>
-                {networkData.nodes.length} nodes · {networkData.edges?.length ?? 0} edges
-              </Text>
+            <View style={{ height: CARD_HEIGHT }}>
+              <NetworkGraph networkData={networkData} loading={loading.network} />
             </View>
           ) : (
             <EmptyPlaceholder label="No network data available" />
           )}
         </SectionCard>
 
-        {/* ── Molecular Structure card ──────────────────────────────────────── */}
         <SectionCard title="Molecular Structure">
           {loading.structure ? (
             <LoadingPlaceholder label="Loading structure…" />
           ) : structureData ? (
-            /* MoleculeViewer placeholder — Phase 11 will replace this */
             <View style={{ height: CARD_HEIGHT, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ fontSize: 12, color: MUTED_FG }}>
-                3D molecule viewer — coming in Phase 11
+                3D molecule viewer — coming soon
               </Text>
               <Text style={{ fontSize: 10, color: MUTED_FG, marginTop: 4 }}>
                 {structureData.source ?? '3d'} · CID {structureData.pubchem_cid ?? 'N/A'}
@@ -129,7 +106,6 @@ export default function DrugDetailScreen() {
           )}
         </SectionCard>
 
-        {/* ── Drug Analysis card ────────────────────────────────────────────── */}
         <SectionCard title="Analysis">
           <DrugAnalysis
             drug={selectedDrug}
@@ -140,13 +116,10 @@ export default function DrugDetailScreen() {
         </SectionCard>
       </ScrollView>
 
-      {/* ── Explanation sheet ─────────────────────────────────────────────── */}
       <ExplanationSheet ref={sheetRef} drug={selectedDrug} disease={selectedDisease} />
     </View>
   );
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (

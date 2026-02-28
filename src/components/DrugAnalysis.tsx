@@ -1,20 +1,8 @@
-/**
- * DrugAnalysis — Phase 7 port of DrugAnalysis.js
- *
- * Replaces:
- *   <div className="grid grid-cols-2">   → two-column flex row
- *   <span> badges (targets)              → horizontal ScrollView chips
- *   <Sparkles> / <AlertTriangle>         → lucide-react-native (same API)
- *   "Explain with AI" button             → Pressable onPress={onOpenChatbot}
- */
-
 import React from 'react';
 import { View, Text, Pressable, ScrollView, Platform } from 'react-native';
 import { Sparkles, AlertTriangle } from 'lucide-react-native';
 
 import type { DrugCandidate, Disease, NetworkData } from '@/types/index';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DrugAnalysisProps {
   drug: DrugCandidate;
@@ -23,13 +11,9 @@ interface DrugAnalysisProps {
   onOpenChatbot: () => void;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
 const BORDER = '#E5E7EB';
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function DrugAnalysis({
   drug,
@@ -50,7 +34,6 @@ export default function DrugAnalysis({
 
   return (
     <View>
-      {/* ── Header row ──────────────────────────────────────────────────────── */}
       <View
         style={{
           flexDirection: 'row',
@@ -77,11 +60,9 @@ export default function DrugAnalysis({
         </Pressable>
       </View>
 
-      {/* ── Info grid ───────────────────────────────────────────────────────── */}
       {/* Drug Name — full width */}
       <InfoRow label="Drug Name" value={drug.drug_name} bold />
 
-      {/* Two-column rows */}
       <View style={{ flexDirection: 'row', gap: 16, marginTop: 8 }}>
         <View style={{ flex: 1 }}>
           <InfoRow label="ChEMBL ID" value={drug.drug_id} mono />
@@ -130,7 +111,6 @@ export default function DrugAnalysis({
         </View>
       </View>
 
-      {/* ── Mechanism ────────────────────────────────────────────────────────── */}
       <View style={{ borderTopWidth: 1, borderTopColor: BORDER, paddingTop: 10, marginTop: 12, marginBottom: 10 }}>
         <Text
           style={{
@@ -147,7 +127,6 @@ export default function DrugAnalysis({
         <Text style={{ fontSize: 10, color: '#111827', lineHeight: 16 }}>{mechanismText}</Text>
       </View>
 
-      {/* ── Molecular targets ────────────────────────────────────────────────── */}
       {targetNodes.length > 0 && (
         <View style={{ borderTopWidth: 1, borderTopColor: BORDER, paddingTop: 10, marginBottom: 10 }}>
           <Text
@@ -193,7 +172,6 @@ export default function DrugAnalysis({
         </View>
       )}
 
-      {/* ── Guardrail warning ────────────────────────────────────────────────── */}
       {drug.guardrail && (
         <View
           style={{
@@ -224,8 +202,6 @@ export default function DrugAnalysis({
     </View>
   );
 }
-
-// ─── InfoRow helper ──────────────────────────────────────────────────────────
 
 function InfoRow({
   label,

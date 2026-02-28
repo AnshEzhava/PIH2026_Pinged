@@ -1,11 +1,3 @@
-/**
- * ExplanationSheet — Phase 8 port of ExplanationPopup.js
- *
- * Replaces Framer Motion fixed-position modal with @gorhom/bottom-sheet.
- * Content sections (Summary, Mechanism, Disease Relevance, Contraindications,
- * Confidence) are ported verbatim — only <div>/<p> → <View>/<Text>.
- */
-
 import React, { useState, useEffect, forwardRef } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import BottomSheet, {
@@ -18,22 +10,16 @@ import { AlertTriangle } from 'lucide-react-native';
 import { getGeminiExplanation } from '@/services/index';
 import type { DrugCandidate, Disease, GeminiExplanation } from '@/types/index';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface ExplanationSheetProps {
   drug: DrugCandidate | null;
   disease: Disease | null;
 }
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const ACCENT = '#2563EB';
 const MUTED_FG = '#9CA3AF';
 const BORDER = '#E5E7EB';
 
 const SNAP_POINTS = ['80%'];
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
   ({ drug, disease }, ref) => {
@@ -89,7 +75,6 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
         backgroundStyle={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
       >
         <BottomSheetScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-          {/* ── Sheet header ──────────────────────────────────────────────── */}
           <View
             style={{
               paddingHorizontal: 20,
@@ -107,7 +92,6 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
             </Text>
           </View>
 
-          {/* ── Content ───────────────────────────────────────────────────── */}
           <View style={{ paddingHorizontal: 20, paddingTop: 20 }}>
             {loading && (
               <View style={{ alignItems: 'center', paddingVertical: 48 }}>
@@ -134,16 +118,14 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
 
             {!loading && !fetchError && explanation && drug && disease && (
               <>
-                {/* Summary */}
-                <Section title="SUMMARY">
+                  <Section title="SUMMARY">
                   <Text style={{ fontSize: 14, color: '#111827', lineHeight: 22 }}>
                     {explanation.summary ??
                       `${drug.drug_name} shows potential for ${disease.disease_name} based on its mechanism of action and known biological pathways.`}
                   </Text>
                 </Section>
 
-                {/* Mechanism */}
-                <Section title="MECHANISM OF ACTION">
+                  <Section title="MECHANISM OF ACTION">
                   <Text style={{ fontSize: 14, color: '#111827', lineHeight: 22 }}>
                     {explanation.mechanism_detail ??
                       `${drug.drug_name} acts on multiple biological targets that are implicated in ${disease.disease_name} pathology.`}
@@ -159,8 +141,7 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
                   )}
                 </Section>
 
-                {/* Disease Relevance */}
-                <Section title="DISEASE RELEVANCE">
+                  <Section title="DISEASE RELEVANCE">
                   <Text style={{ fontSize: 14, color: '#111827', lineHeight: 22 }}>
                     {explanation.disease_relevance ??
                       `In the context of ${disease.disease_name}, this drug candidate addresses critical aspects of disease biology.`}
@@ -173,8 +154,7 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
                   )}
                 </Section>
 
-                {/* Contraindications */}
-                {explanation.contraindications && explanation.contraindications.length > 0 && (
+                  {explanation.contraindications && explanation.contraindications.length > 0 && (
                   <Section title="CONTRAINDICATIONS">
                     <View
                       style={{
@@ -203,8 +183,7 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
                   </Section>
                 )}
 
-                {/* Confidence */}
-                <Section title="CONFIDENCE INTERPRETATION">
+                  <Section title="CONFIDENCE INTERPRETATION">
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8 }}>
                     <Text style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}>
                       Confidence Score
@@ -234,8 +213,7 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
                   </Text>
                 </Section>
 
-                {/* Additional info */}
-                {drug.drug_type && drug.drug_type !== 'Unknown' && (
+                  {drug.drug_type && drug.drug_type !== 'Unknown' && (
                   <View style={{ paddingTop: 16, borderTopWidth: 1, borderTopColor: BORDER }}>
                     <Text style={{ fontSize: 12, color: MUTED_FG }}>
                       <Text style={{ fontWeight: '600' }}>Current Use: </Text>
@@ -260,8 +238,6 @@ const ExplanationSheet = forwardRef<BottomSheet, ExplanationSheetProps>(
 
 ExplanationSheet.displayName = 'ExplanationSheet';
 export default ExplanationSheet;
-
-// ─── Section helper ────────────────────────────────────────────────────────────
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

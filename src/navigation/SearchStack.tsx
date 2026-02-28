@@ -1,8 +1,3 @@
-/**
- * SearchStack — single-screen stack for the Search tab.
- * Pushes SearchScreen only (no further drill-down from this tab).
- */
-
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SearchScreen from '@/screens/SearchScreen';

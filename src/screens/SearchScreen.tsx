@@ -33,6 +33,7 @@ export default function SearchScreen() {
   const [searching, setSearching] = useState(false);
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
   const [directId, setDirectId] = useState("");
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     getPopularDiseases()
@@ -40,23 +41,26 @@ export default function SearchScreen() {
       .catch(() => setDiseases([]));
   }, []);
 
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-    if (query.length < 2) {
-      getPopularDiseases()
-        .then(setDiseases)
-        .catch(() => {});
-      return;
-    }
-    setSearching(true);
-    try {
-      const results = await searchDiseases(query);
-      setDiseases(results);
-    } catch {
-      // keep existing list on error
-    } finally {
-      setSearching(false);
-    }
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(async () => {
+      if (query.length < 2) {
+        getPopularDiseases()
+          .then(setDiseases)
+          .catch(() => {});
+        return;
+      }
+      setSearching(true);
+      try {
+        const results = await searchDiseases(query);
+        setDiseases(results);
+      } catch {
+        // keep existing list on error
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
   }, []);
 
   const handleSelect = useCallback(
@@ -291,7 +295,9 @@ export default function SearchScreen() {
           }}
         >
           <View>
-            <Text style={{ fontSize: 12, fontWeight: "600", color: C.textPrimary }}>
+            <Text
+              style={{ fontSize: 12, fontWeight: "600", color: C.textPrimary }}
+            >
               Advanced Input
             </Text>
             <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 1 }}>

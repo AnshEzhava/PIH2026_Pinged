@@ -46,11 +46,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
      *
      * Override by setting API_BASE_URL env var before `expo start`.
      *
-     * Defaults:
-     *   Android emulator → http://10.0.2.2:8000/api
-     *   iOS simulator    → http://localhost:8000/api
-     *   Physical device  → http://<your-LAN-IP>:8000/api
+     * Production: https://pih2026pinged-production.up.railway.app/api
+     * Local dev:  http://10.0.2.2:8000/api (Android emulator)
      */
-    apiBaseUrl: process.env.API_BASE_URL ?? 'http://10.0.2.2:8000/api',
+    apiBaseUrl: process.env.API_BASE_URL ?? 'https://pih2026pinged-production.up.railway.app/api',
   },
 });

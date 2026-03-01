@@ -14,7 +14,7 @@ import type {
 
 const API_BASE: string =
   (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ??
-  'http://10.0.2.2:8000/api';
+  'https://pih2026pinged-production.up.railway.app/api';
 
 const api = axios.create({
   baseURL: API_BASE,

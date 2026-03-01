@@ -27,9 +27,9 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiBaseUrl": "http://10.0.2.2:8000/api",
+      "apiBaseUrl": "https://pih2026pinged-production.up.railway.app/api",
       "eas": {
-        "projectId": "af77edbc-e156-41a5-9406-ed665bdde4dc"
+        "projectId": "208eca75-f988-4402-8043-71d06927e5a7"
       }
     }
   }

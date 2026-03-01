@@ -2,23 +2,15 @@ import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
+  TouchableOpacity,
   ActivityIndicator,
   PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
   LayoutChangeEvent,
   StyleSheet,
 } from 'react-native';
 import Svg, { G, Line, Circle, Text as SvgText } from 'react-native-svg';
-import {
-  GestureHandlerRootView,
-  PinchGestureHandler,
-  State,
-  PinchGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 
 import { NetworkData, NetworkNodeType } from '@/types/index';
 import { useForceSimulation } from '@/hooks/useForceSimulation';
@@ -40,6 +32,14 @@ const NODE_RADIUS: Record<NetworkNodeType | string, number> = {
   pathway: 9,
 };
 
+interface Transform {
+  scale: number;
+  tx: number;
+  ty: number;
+}
+
+const DEFAULT_TRANSFORM: Transform = { scale: 1, tx: 0, ty: 0 };
+
 interface Props {
   networkData?: NetworkData | null;
   loading?: boolean;
@@ -50,11 +50,15 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
-  // Zoom state
-  const scale = useSharedValue(1);
-  const savedScale = useRef(1);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
+  // Single source of truth for the SVG transform; kept in a ref for sync
+  // coordinate math and mirrored into state to trigger re-renders.
+  const transformRef = useRef<Transform>(DEFAULT_TRANSFORM);
+  const [transform, setTransform] = useState<Transform>(DEFAULT_TRANSFORM);
+
+  const applyTransform = useCallback((t: Transform) => {
+    transformRef.current = t;
+    setTransform(t);
+  }, []);
 
   const { positions, linkPositions, setFixedPos } =
     useForceSimulation(
@@ -69,23 +73,86 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
     setDimensions({ width, height });
   }, []);
 
-  const onPinch = (event: PinchGestureHandlerGestureEvent) => {
-    if (event.nativeEvent.state === State.ACTIVE) {
-      scale.value = Math.max(0.3, Math.min(3, savedScale.current * event.nativeEvent.scale));
-    }
-    if (event.nativeEvent.state === State.END) {
-      savedScale.current = scale.value;
-    }
-  };
+  // --- Canvas pan responder ------------------------------------------------
+  // Tracks the transform at the moment the gesture started so delta math is
+  // relative to a stable baseline rather than the continuously-updating ref.
+  const panBaseTransform = useRef<Transform>(DEFAULT_TRANSFORM);
 
-  const animatedSvgStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-  }));
+  const canvasPanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      // Only claim the gesture if it has moved enough to look like a pan
+      // (this avoids stealing taps meant for nodes).
+      onMoveShouldSetPanResponder: (_: GestureResponderEvent, gs: PanResponderGestureState) =>
+        Math.abs(gs.dx) > 4 || Math.abs(gs.dy) > 4,
+      onPanResponderGrant: () => {
+        panBaseTransform.current = { ...transformRef.current };
+      },
+      onPanResponderMove: (_: GestureResponderEvent, gs: PanResponderGestureState) => {
+        const base = panBaseTransform.current;
+        applyTransform({
+          scale: base.scale,
+          tx: base.tx + gs.dx,
+          ty: base.ty + gs.dy,
+        });
+      },
+    })
+  ).current;
 
+  // --- Pinch zoom (canvas-level, focal-point-aware) ------------------------
+  // We track the previous distance ourselves so we can compute the focal point
+  // without relying on gesture-handler's PinchGestureHandler (which transforms
+  // the entire SVG as a bitmap). Instead we use a two-touch MultiTouchHandler
+  // approach via PanResponder's raw touch list.
+  const pinchRef = useRef<{
+    startDist: number;
+    startScale: number;
+    focalX: number;
+    focalY: number;
+  } | null>(null);
+
+  const pinchPanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: (e) => e.nativeEvent.touches.length === 2,
+      onMoveShouldSetPanResponder: (e) => e.nativeEvent.touches.length === 2,
+      onPanResponderGrant: (e) => {
+        const touches = e.nativeEvent.touches;
+        if (touches.length < 2) return;
+        const dx = touches[1].pageX - touches[0].pageX;
+        const dy = touches[1].pageY - touches[0].pageY;
+        pinchRef.current = {
+          startDist: Math.sqrt(dx * dx + dy * dy),
+          startScale: transformRef.current.scale,
+          // Focal point in screen coordinates
+          focalX: (touches[0].pageX + touches[1].pageX) / 2,
+          focalY: (touches[0].pageY + touches[1].pageY) / 2,
+        };
+      },
+      onPanResponderMove: (e) => {
+        const touches = e.nativeEvent.touches;
+        if (touches.length < 2 || !pinchRef.current) return;
+        const dx = touches[1].pageX - touches[0].pageX;
+        const dy = touches[1].pageY - touches[0].pageY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const { startDist, startScale, focalX, focalY } = pinchRef.current;
+        const newScale = Math.max(0.3, Math.min(4, startScale * (dist / startDist)));
+
+        // Adjust translation so the focal point stays fixed on-screen:
+        // newTx = focalX - newScale * (focalX - oldTx) / oldScale
+        const { tx, ty, scale: oldScale } = transformRef.current;
+        const newTx = focalX - (newScale / oldScale) * (focalX - tx);
+        const newTy = focalY - (newScale / oldScale) * (focalY - ty);
+        applyTransform({ scale: newScale, tx: newTx, ty: newTy });
+      },
+      onPanResponderRelease: () => {
+        pinchRef.current = null;
+      },
+    })
+  ).current;
+
+  // --- Per-node drag responder ---------------------------------------------
+  // dx/dy from PanResponder are in screen pixels; dividing by scale converts
+  // them to SVG-canvas units so dragged nodes track the finger at any zoom.
   const makePanResponder = useCallback(
     (nodeId: string) =>
       PanResponder.create({
@@ -95,14 +162,15 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
           const pos = positions[nodeId];
           if (pos) setFixedPos(nodeId, pos);
         },
-        onPanResponderMove: (_, gs) => {
+        onPanResponderMove: (_: GestureResponderEvent, gs: PanResponderGestureState) => {
           const base = positions[nodeId] ?? { x: 0, y: 0 };
-          setFixedPos(nodeId, { x: base.x + gs.dx / scale.value, y: base.y + gs.dy / scale.value });
+          const s = transformRef.current.scale;
+          setFixedPos(nodeId, { x: base.x + gs.dx / s, y: base.y + gs.dy / s });
         },
         onPanResponderRelease: () => setFixedPos(nodeId, null),
         onPanResponderTerminate: () => setFixedPos(nodeId, null),
       }),
-    [positions, setFixedPos, scale],
+    [positions, setFixedPos],
   );
 
   if (loading) {
@@ -126,86 +194,105 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
     ? nodes.find(n => n.id === selectedNode)
     : null;
 
+  const { scale: s, tx, ty } = transform;
+  const svgTransform = `translate(${tx}, ${ty}) scale(${s})`;
+
   return (
-    <View style={{ flex: 1 }} onLayout={onLayout}>
+    <View
+      style={{ flex: 1 }}
+      onLayout={onLayout}
+      {...canvasPanResponder.panHandlers}
+      {...pinchPanResponder.panHandlers}
+    >
       {dimensions.width > 0 && (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <PinchGestureHandler onGestureEvent={onPinch}>
-            <Animated.View style={[{ flex: 1 }, animatedSvgStyle]}>
-              <Svg
-                width={dimensions.width}
-                height={dimensions.height}
-                viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-              >
-                <G>
-                  {linkPositions.map(lp => (
-                    <Line
-                      key={lp.id}
-                      x1={lp.x1}
-                      y1={lp.y1}
-                      x2={lp.x2}
-                      y2={lp.y2}
-                      stroke={C.networkEdge}
-                      strokeWidth={1.2}
-                    />
-                  ))}
-                </G>
+        <>
+          <Svg
+            width={dimensions.width}
+            height={dimensions.height}
+            viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+          >
+            {/* Single <G> carries the zoom/pan transform so the SVG coordinate
+                space is correct for all child elements. Legend and tooltip are
+                rendered outside the SVG so they remain fixed on screen. */}
+            <G transform={svgTransform}>
+              <G>
+                {linkPositions.map(lp => (
+                  <Line
+                    key={lp.id}
+                    x1={lp.x1}
+                    y1={lp.y1}
+                    x2={lp.x2}
+                    y2={lp.y2}
+                    stroke={C.networkEdge}
+                    strokeWidth={1.2}
+                  />
+                ))}
+              </G>
 
-                <G>
-                  {linkPositions
-                    .filter(lp => !!lp.label)
-                    .map(lp => (
-                      <SvgText
-                        key={`lbl-${lp.id}`}
-                        x={lp.mx}
-                        y={lp.my}
-                        textAnchor="middle"
-                        fontSize={8}
-                        fill={C.networkEdgeLabel}
-                      >
-                        {lp.label}
-                      </SvgText>
-                    ))}
-                </G>
-
-                {nodes.map(node => {
-                  const pos = positions[node.id] ?? { x: 0, y: 0 };
-                  const r = NODE_RADIUS[node.type] ?? 8;
-                  const color = NODE_COLORS[node.type] ?? '#6366F1';
-                  const pr = makePanResponder(node.id);
-                  return (
-                    <G
-                      key={node.id}
-                      {...pr.panHandlers}
-                      onPress={() =>
-                        setSelectedNode(prev => (prev === node.id ? null : node.id))
-                      }
+              <G>
+                {linkPositions
+                  .filter(lp => !!lp.label)
+                  .map(lp => (
+                    <SvgText
+                      key={`lbl-${lp.id}`}
+                      x={lp.mx}
+                      y={lp.my}
+                      textAnchor="middle"
+                      // Inverse-scale keeps labels legible at all zoom levels
+                      fontSize={8 / s}
+                      fill={C.networkEdgeLabel}
                     >
-                      <Circle
-                        cx={pos.x}
-                        cy={pos.y}
-                        r={r}
-                        fill={color}
-                        stroke={C.networkNodeStroke}
-                        strokeWidth={selectedNode === node.id ? 2.5 : 1.5}
-                        opacity={selectedNode && selectedNode !== node.id ? 0.5 : 1}
-                      />
-                      <SvgText
-                        x={pos.x}
-                        y={pos.y - r - 4}
-                        textAnchor="middle"
-                        fontSize={9}
-                        fontWeight="500"
-                        fill={C.networkNodeLabel}
-                      >
-                        {node.label ?? node.id}
-                      </SvgText>
-                    </G>
-                  );
-                })}
-              </Svg>
-            </Animated.View>
-          </PinchGestureHandler>
+                      {lp.label}
+                    </SvgText>
+                  ))}
+              </G>
+
+              {nodes.map(node => {
+                const pos = positions[node.id] ?? { x: 0, y: 0 };
+                const r = NODE_RADIUS[node.type] ?? 8;
+                const color = NODE_COLORS[node.type] ?? '#6366F1';
+                const pr = makePanResponder(node.id);
+                return (
+                  <G
+                    key={node.id}
+                    {...pr.panHandlers}
+                    onPress={() =>
+                      setSelectedNode(prev => (prev === node.id ? null : node.id))
+                    }
+                  >
+                    <Circle
+                      cx={pos.x}
+                      cy={pos.y}
+                      r={r}
+                      fill={color}
+                      stroke={C.networkNodeStroke}
+                      strokeWidth={selectedNode === node.id ? 2.5 : 1.5}
+                      opacity={selectedNode && selectedNode !== node.id ? 0.5 : 1}
+                    />
+                    <SvgText
+                      x={pos.x}
+                      y={pos.y - r - 4}
+                      textAnchor="middle"
+                      // Inverse-scale keeps labels legible at all zoom levels
+                      fontSize={9 / s}
+                      fontWeight="500"
+                      fill={C.networkNodeLabel}
+                    >
+                      {node.label ?? node.id}
+                    </SvgText>
+                  </G>
+                );
+              })}
+            </G>
+          </Svg>
+
+          {/* Reset button — snaps back to default transform */}
+          <TouchableOpacity
+            style={[styles.resetButton, { backgroundColor: C.card, borderColor: C.border }]}
+            onPress={() => applyTransform(DEFAULT_TRANSFORM)}
+          >
+            <Text style={[styles.resetLabel, { color: C.textMuted }]}>Reset</Text>
+          </TouchableOpacity>
 
           <View style={styles.legend}>
             {(['drug', 'gene', 'disease'] as const).map(type => (
@@ -231,7 +318,7 @@ export default function NetworkGraph({ networkData, loading = false }: Props) {
               <Text style={[styles.tooltipType, { color: C.textMuted }]}>{selectedNodeData.type}</Text>
             </View>
           )}
-        </GestureHandlerRootView>
+        </>
       )}
     </View>
   );
@@ -245,6 +332,19 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 13,
+  },
+  resetButton: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  resetLabel: {
+    fontSize: 11,
+    fontWeight: '500',
   },
   legend: {
     position: 'absolute',

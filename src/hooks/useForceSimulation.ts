@@ -18,7 +18,8 @@ import {
   forceSimulation,
   forceLink,
   forceManyBody,
-  forceCenter,
+  forceX,
+  forceY,
   forceCollide,
   Simulation,
   SimulationNodeDatum,
@@ -108,15 +109,50 @@ export function useForceSimulation(
     simNodesRef.current = simNodes;
     simLinksRef.current = simLinks;
 
+    const cx = width / 2;
+    const cy = height / 2;
+
     const sim = forceSimulation<SimNode>(simNodes)
       .force(
         'link',
         forceLink<SimNode, SimLink>(simLinks)
           .id(d => d.id)
-          .distance(60),
+          // Shorter distance for edges directly touching a drug or disease node keeps
+          // the two anchor nodes from spanning the full card width before centering
+          // forces can pull them back. Gene/target edges use a slightly larger distance
+          // so intermediate nodes have room to spread around the anchors.
+          .distance(l => {
+            const srcType = (l.source as SimNode).type;
+            const tgtType = (l.target as SimNode).type;
+            return srcType === 'drug' || srcType === 'disease' ||
+                   tgtType === 'drug' || tgtType === 'disease'
+              ? 45
+              : 55;
+          }),
       )
-      .force('charge', forceManyBody<SimNode>().strength(-120))
-      .force('center', forceCenter<SimNode>(width / 2, height / 2))
+      // Change 5: reduced from -120 to -80 — less aggressive initial explosion on the
+      // small 260px card viewport so centering forces can catch up sooner
+      .force('charge', forceManyBody<SimNode>().strength(-80))
+      // Change 1: forceX + forceY replace forceCenter. forceCenter only moves the
+      // cloud's centre-of-mass; forceX/forceY apply a per-node spring toward the
+      // target coordinate, making it impossible for any single node to drift far.
+      .force('centerX', forceX<SimNode>(cx).strength(0.08))
+      .force('centerY', forceY<SimNode>(cy).strength(0.08))
+      // Change 2: stronger gravity for drug and disease nodes specifically. These are
+      // the two anchor nodes users expect to always be visible; pulling them harder
+      // toward the centre prevents the layout from splitting into two disconnected clusters.
+      .force(
+        'anchorX',
+        forceX<SimNode>(cx).strength(d =>
+          d.type === 'drug' || d.type === 'disease' ? 0.15 : 0,
+        ),
+      )
+      .force(
+        'anchorY',
+        forceY<SimNode>(cy).strength(d =>
+          d.type === 'drug' || d.type === 'disease' ? 0.15 : 0,
+        ),
+      )
       .force(
         'collision',
         forceCollide<SimNode>().radius(d => (NODE_RADII[d.type] ?? 8) + 4),
@@ -134,6 +170,16 @@ export function useForceSimulation(
       }
       sim.tick();
       tick++;
+
+      // Change 3: hard boundary clamp — after each physics tick, prevent any node
+      // from leaving the visible viewport. Without this, the repulsion force can
+      // accelerate a node past the edge faster than the centering spring pulls it back.
+      for (const n of simNodes) {
+        const r = (NODE_RADII[n.type] ?? 8) + 4;
+        if (n.x !== undefined) n.x = Math.max(r, Math.min(width - r, n.x));
+        if (n.y !== undefined) n.y = Math.max(r, Math.min(height - r, n.y));
+      }
+
       flushPositions(simNodes, simLinks);
       rafRef.current = requestAnimationFrame(loop);
     };

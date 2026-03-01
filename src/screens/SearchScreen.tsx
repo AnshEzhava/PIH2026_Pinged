@@ -15,11 +15,11 @@ import { Search, ChevronDown, ChevronUp } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
-import { getPopularDiseases, searchDiseases } from "@/services/index";
-import { useAppContext } from "@/context/AppContext";
-import type { Disease } from "@/types/index";
-import type { TabParamList } from "@/navigation/TabNavigator";
-import { useThemeColors } from "@/theme/colors";
+import { getPopularDiseases, searchDiseases } from "@/services";
+import { useAppContext } from "@/context";
+import type { Disease } from "@/types";
+import type { TabParamList } from "@/navigation";
+import { useThemeColors } from "@/theme";
 
 export default function SearchScreen() {
   const C = useThemeColors();

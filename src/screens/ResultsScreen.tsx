@@ -12,12 +12,11 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type BottomSheet from "@gorhom/bottom-sheet";
 
-import { useAppContext } from "@/context/AppContext";
-import DrugCard from "@/components/DrugCard";
-import ExplanationSheet from "@/components/ExplanationSheet";
-import type { DrugCandidate } from "@/types/index";
-import type { ResultsStackParamList } from "@/navigation/ResultsStack";
-import { useThemeColors } from "@/theme/colors";
+import { useAppContext } from "@/context";
+import { DrugCard, ExplanationSheet } from "@/components";
+import type { DrugCandidate } from "@/types";
+import type { ResultsStackParamList } from "@/navigation";
+import { useThemeColors } from "@/theme";
 
 export default function ResultsScreen() {
   const C = useThemeColors();

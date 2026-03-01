@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import { Sparkles, AlertTriangle } from "lucide-react-native";
 
-import type { DrugCandidate, Disease, NetworkData } from "@/types/index";
-import { useThemeColors } from "@/theme/colors";
+import type { DrugCandidate, Disease, NetworkData } from "@/types";
+import { useThemeColors } from "@/theme";
 
 interface DrugAnalysisProps {
   drug: DrugCandidate;

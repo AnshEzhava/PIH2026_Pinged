@@ -4,7 +4,7 @@ import { Search, FlaskConical } from 'lucide-react-native';
 
 import SearchStack from './SearchStack';
 import ResultsStack from './ResultsStack';
-import { useThemeColors } from '@/theme/colors';
+import { useThemeColors } from '@/theme';
 
 export type TabParamList = {
   SearchTab: undefined;

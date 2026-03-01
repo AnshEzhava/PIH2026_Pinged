@@ -12,9 +12,9 @@ import {
 } from "react-native";
 import Svg, { G, Line, Circle, Text as SvgText } from "react-native-svg";
 
-import { NetworkData, NetworkNodeType } from "@/types/index";
-import { useForceSimulation } from "@/hooks/useForceSimulation";
-import { useThemeColors } from "@/theme/colors";
+import { NetworkData, NetworkNodeType } from "@/types";
+import { useForceSimulation } from "@/hooks";
+import { useThemeColors } from "@/theme";
 
 const NODE_COLORS: Record<NetworkNodeType | string, string> = {
   drug: "#6366F1",

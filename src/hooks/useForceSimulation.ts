@@ -11,7 +11,7 @@ import {
   SimulationLinkDatum,
 } from "d3-force";
 
-import { NetworkNode, NetworkEdge } from "@/types/index";
+import { NetworkNode, NetworkEdge } from "@/types";
 
 export interface SimNode extends SimulationNodeDatum {
   id: string;

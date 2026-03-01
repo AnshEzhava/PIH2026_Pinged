@@ -21,9 +21,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { Sparkles, Send, X } from "lucide-react-native";
 
-import { chatWithGemini } from "@/services/index";
-import { useAppContext } from "@/context/AppContext";
-import { useThemeColors, type AppColors } from "@/theme/colors";
+import { chatWithGemini } from "@/services";
+import { useAppContext } from "@/context";
+import { useThemeColors, type AppColors } from "@/theme";
 
 interface Message {
   role: "user" | "assistant";

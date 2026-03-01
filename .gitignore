@@ -1,6 +1,4 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+﻿# dependencies
 node_modules/
 
 # Expo
@@ -41,14 +39,16 @@ yarn-error.*
 /android
 yarn.lock
 
-# ── Backend (Python) ──────────────────────────────────────────────────
+# Backend (Python)
 backend/.venv/
 backend/__pycache__/
 backend/src/__pycache__/
-backend/data/cache/opentargets/
-backend/cache/
 backend/.env
-# Keep model files, but not large training artefacts
+
+# OpenTargets raw API cache (1100+ files, rebuilt automatically by prewarm)
+backend/data/cache/
+
+# Large training artefacts only
 backend/models/*.parquet
 backend/models/*.npy
 backend/models/*.csv

@@ -15,6 +15,7 @@ import { useAppContext } from "@/context/AppContext";
 import DrugAnalysis from "@/components/DrugAnalysis";
 import ExplanationSheet from "@/components/ExplanationSheet";
 import NetworkGraph from "@/components/NetworkGraph";
+import MoleculeViewer from "@/components/MoleculeViewer";
 import { useThemeColors, type AppColors } from "@/theme/colors";
 
 const CARD_HEIGHT = 260;
@@ -110,20 +111,11 @@ export default function DrugDetailScreen() {
           {loading.structure ? (
             <LoadingPlaceholder label="Loading structure…" colors={C} />
           ) : structureData ? (
-            <View
-              style={{
-                height: CARD_HEIGHT,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ fontSize: 12, color: C.textMuted }}>
-                3D molecule viewer — coming soon
-              </Text>
-              <Text style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>
-                {structureData.source ?? "3d"} · CID{" "}
-                {structureData.pubchem_cid ?? "N/A"}
-              </Text>
+            <View style={{ height: CARD_HEIGHT }}>
+              <MoleculeViewer
+                structureData={structureData}
+                drugName={selectedDrug.drug_name}
+              />
             </View>
           ) : (
             <EmptyPlaceholder label="No structure data available" colors={C} />

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import type { DrugCandidate } from '@/types/index';
-import { useThemeColors } from '@/theme/colors';
+import type { DrugCandidate } from '@/types';
+import { useThemeColors } from '@/theme';
 
 interface DrugCardProps {
   drug: DrugCandidate;

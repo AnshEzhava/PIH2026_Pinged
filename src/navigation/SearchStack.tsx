@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SearchScreen from '@/screens/SearchScreen';
+import { SearchScreen } from '@/screens';
 
 export type SearchStackParamList = {
   Search: undefined;

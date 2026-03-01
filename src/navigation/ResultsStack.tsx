@@ -1,7 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ResultsScreen from '@/screens/ResultsScreen';
-import DrugDetailScreen from '@/screens/DrugDetailScreen';
+import { ResultsScreen, DrugDetailScreen } from '@/screens';
 
 export type ResultsStackParamList = {
   Results: undefined;

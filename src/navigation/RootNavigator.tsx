@@ -4,9 +4,9 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
 
-import { AppProvider } from "@/context/AppContext";
+import { AppProvider } from "@/context";
 import TabNavigator from "./TabNavigator";
-import ChatbotScreen from "@/screens/ChatbotScreen";
+import { ChatbotScreen } from "@/screens";
 
 export default function RootNavigator() {
   const scheme = useColorScheme();

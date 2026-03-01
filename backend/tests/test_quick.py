@@ -1,7 +1,12 @@
 """Quick integration test for the backend pipeline."""
 import sys, warnings
+from pathlib import Path
+
 warnings.filterwarnings('ignore')
-sys.path.insert(0, '.')
+
+# Run from backend/ or backend/tests/ — always resolve to the backend root.
+BACKEND_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BACKEND_ROOT))
 
 from config import MAX_CANDIDATE_DRUGS, PARALLEL_WORKERS, SKIP_ALPHAFOLD, FEATURE_NAMES
 from src.opentargets_client import OpenTargetsClient
@@ -15,8 +20,8 @@ engine = FeatureEngine(opentargets_client=client, structure_handler=None)
 gates  = PostModelGates(opentargets_client=client)
 
 m = xgb.XGBClassifier()
-m.load_model('models/xgb_temporal_model.json')
-scaler = joblib.load('models/feature_scaler.joblib')
+m.load_model(str(BACKEND_ROOT / 'models' / 'xgb_temporal_model.json'))
+scaler = joblib.load(str(BACKEND_ROOT / 'models' / 'feature_scaler.joblib'))
 
 disease_id = 'MONDO_0004975'  # Alzheimer
 print("Testing with Alzheimer Disease (MONDO_0004975)...")

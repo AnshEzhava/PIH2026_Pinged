@@ -7,9 +7,9 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { AlertTriangle } from 'lucide-react-native';
 
-import { getGeminiExplanation } from '@/services/index';
-import type { DrugCandidate, Disease, GeminiExplanation } from '@/types/index';
-import { useThemeColors } from '@/theme/colors';
+import { getGeminiExplanation } from '@/services';
+import type { DrugCandidate, Disease, GeminiExplanation } from '@/types';
+import { useThemeColors } from '@/theme';
 
 interface ExplanationSheetProps {
   drug: DrugCandidate | null;

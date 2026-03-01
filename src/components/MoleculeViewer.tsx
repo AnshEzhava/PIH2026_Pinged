@@ -4,10 +4,9 @@ import { GLView } from 'expo-gl';
 import { Renderer, THREE } from 'expo-three';
 import type { ExpoWebGLRenderingContext } from 'expo-gl';
 
-import { parseSDF, normalizeAtoms } from '@/utils/sdfParser';
-import { CPK, RADII, DEFAULT_COLOR, DEFAULT_RADIUS } from '@/utils/atomConstants';
-import type { StructureData } from '@/types/index';
-import { useThemeColors } from '@/theme/colors';
+import { parseSDF, normalizeAtoms, CPK, RADII, DEFAULT_COLOR, DEFAULT_RADIUS } from '@/utils';
+import type { StructureData } from '@/types';
+import { useThemeColors } from '@/theme';
 
 // Ensure Three.js uses the single global instance expo-three provides.
 // Metro can otherwise bundle two separate copies, breaking instanceof checks.

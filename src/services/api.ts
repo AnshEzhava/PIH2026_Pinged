@@ -10,7 +10,7 @@ import type {
   GeminiExplanation,
   GeminiChatResponse,
   PredictResponse,
-} from '@/types/index';
+} from '@/types';
 
 const API_BASE: string =
   (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ??

@@ -11,7 +11,7 @@ import {
   getDrugDetails,
   getDrugDiseaseNetwork,
   getDrugStructure,
-} from "@/services/index";
+} from "@/services";
 
 import type {
   Disease,
@@ -20,7 +20,7 @@ import type {
   LoadingState,
   NetworkData,
   StructureData,
-} from "@/types/index";
+} from "@/types";
 
 interface AppContextType {
   selectedDisease: Disease | null;

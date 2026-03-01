@@ -11,12 +11,9 @@ import { ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type BottomSheet from "@gorhom/bottom-sheet";
 
-import { useAppContext } from "@/context/AppContext";
-import DrugAnalysis from "@/components/DrugAnalysis";
-import ExplanationSheet from "@/components/ExplanationSheet";
-import NetworkGraph from "@/components/NetworkGraph";
-import MoleculeViewer from "@/components/MoleculeViewer";
-import { useThemeColors, type AppColors } from "@/theme/colors";
+import { useAppContext } from "@/context";
+import { DrugAnalysis, ExplanationSheet, NetworkGraph, MoleculeViewer } from "@/components";
+import { useThemeColors, type AppColors } from "@/theme";
 
 const CARD_HEIGHT = 260;
 
